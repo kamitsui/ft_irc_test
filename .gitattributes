@@ -1,0 +1,82 @@
+# =========================
+# 1. Line Endings Handling
+# =========================
+
+# Force LF for source code (avoid CRLF issues)
+*.c      text eol=lf
+*.h      text eol=lf
+*.cpp    text eol=lf
+*.hpp    text eol=lf
+*.py     text eol=lf
+*.sh     text eol=lf
+
+# Keep native line endings for text files (useful for platform-specific files)
+*.md     text
+*.txt    text
+*.json   text
+*.yaml   text
+*.yml    text
+
+# Force CRLF for Windows scripts
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# =========================
+# 2. File Type Customization
+# =========================
+
+# Treat Markdown and text files as plain text for Git diff
+*.md     diff
+*.txt    diff
+
+# Ignore diff for binary files (to prevent unnecessary Git diffs)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.mov    binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary
+*.tar.gz binary
+*.mp4    binary
+*.mp3    binary
+
+# Prevent automatic merging of binary files (manual merge required)
+*.doc    binary merge=union
+*.docx   binary merge=union
+*.ppt    binary merge=union
+*.pptx   binary merge=union
+
+# =========================
+# 3. Git Large File Storage (LFS)
+# =========================
+
+# Use Git LFS for large binary files to optimize repository size
+*.psd    filter=lfs diff=lfs merge=lfs
+*.ai     filter=lfs diff=lfs merge=lfs
+*.zip    filter=lfs diff=lfs merge=lfs
+*.tar.gz filter=lfs diff=lfs merge=lfs
+*.mp4    filter=lfs diff=lfs merge=lfs
+*.mp3    filter=lfs diff=lfs merge=lfs
+*.mov    filter=lfs diff=lfs merge=lfs
+*.gif    filter=lfs diff=lfs merge=lfs
+
+# =========================
+# 4. Exporting & Versioning Rules
+# =========================
+
+# Exclude compiled and intermediate files from export (when using `git archive`)
+*.o      export-ignore
+*.obj    export-ignore
+*.exe    export-ignore
+*.dll    export-ignore
+*.so     export-ignore
+*.class  export-ignore
+*.pyc    export-ignore
+*.pyo    export-ignore
+
+# Ignore debug and log files from versioning
+*.log    export-ignore
+*.bak    export-ignore
+

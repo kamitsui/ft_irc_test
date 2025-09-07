@@ -1,0 +1,61 @@
+# Ignore everything by default
+*
+
+# Specify file in ft_irc_test
+!env_example
+
+# Whitelist important files
+!*.py
+!Makefile
+!*.mk
+!*.c
+!*.h
+!*.cpp
+!*.hpp
+!*.sh
+!*.md
+!*.txt
+!*.pdf
+!*.jpg
+!*.jpeg
+!*.png
+!*.bmp
+!*.xpm
+!*.zip
+!*.tgz
+!*.dox
+!*.zsh
+!Dockerfile
+
+# cpp09/ex00 : BitcoinExchange data base
+!*.csv
+
+# Git
+!.gitignore
+!.gitattributes
+
+# GitHub Actions workflows
+!*.yml
+!*.yml.disabled
+
+# GitHub LFS
+!*.gif
+!*.mov
+
+# npm dependency files for Node.js
+!package-lock.json
+!package.json
+
+# Doxygen
+!Doxyfile*
+!*.tag.xml
+!docs/*.log
+!*.inc
+
+# Allow directories to be included so we can selectively whitelist files
+!*/
+
+# Ignore specific directories
+doxygen-awesome-css/
+html/
+node_modules/

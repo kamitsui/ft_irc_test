@@ -1,0 +1,4 @@
+# Google Test Path
+# My environ (Ubuntu22.04) : Define this variable in .env file.
+CXXFLAGS = -Wall -Wextra -Werror -std=c++14 -I/usr/include -pthread
+LIBS = -L/usr/lib -lgtest -lgtest_main
