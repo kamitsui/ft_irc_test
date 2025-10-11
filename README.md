@@ -4,10 +4,24 @@
 
 ## 各テストコードの説明
 
-* `unit/` : googletest を使ったクラス単体テスト
-* `integration/` : シェルスクリプトによる統合テスト
-* `performance/` : シェルスクリプトによる性能テスト（仮）
-* `example_cpp09/` : 参考例として、実際に動作するテストコードがあります。
+```sh
+ft_irc_test/
+├── README.md
+├── reference/example_cpp09 # 参考例として、実際に動作するテストコードがあります。
+├── scripts/                # テスト実行用のヘルパースクリプト
+│
+├── unit_tests/             # 各クラスを単体でテストするコード
+│   ├── test_parser.cpp
+│   └── ...
+│
+├── integration_tests/      # 複数クラスを組み合わせてテストするコード
+│   ├── test_auth_flow.py   # Pythonスクリプトでクライアントの動きを模倣
+│   └── ...
+│
+└── performance_tests/      # 性能や耐久性をテストするコード
+    ├── flood_client.py
+    └── ...
+```
 
 ## 使い方
 
