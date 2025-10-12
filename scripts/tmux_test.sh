@@ -23,7 +23,7 @@ readonly CLIENT_PANE=2
 # 各コマンド実行後の基本的な待機時間（秒）
 readonly WAIT_SECONDS=2
 # 実行ファイル
-readonly TARGET="$SCRIPT_DIR/../../ft_irc/srcs/server"
+readonly TARGET="$SCRIPT_DIR/../../ft_irc/src/server"
 
 # --- 関数定義 ---
 

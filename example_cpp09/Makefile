@@ -6,7 +6,7 @@
 #    By: kamitsui <kamitsui@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/15 19:38:29 by kamitsui          #+#    #+#              #
-#    Updated: 2025/09/08 01:16:26 by kamitsui         ###   ########.fr        #
+#    Updated: 2025/10/12 22:08:18 by kamitsui         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,8 +15,8 @@
 # Directories
 PRJ_ROOT = ../../ft_irc
 # Default for the build rule (re, fclean, clean)
-OBJ_DIR = objs
-DEP_DIR = .deps
+OBJ_DIR = obj
+DEP_DIR = .dep
 
 # Compiler
 CXX = c++
@@ -66,17 +66,17 @@ endif
 PRJ_DIR = $(PRJ_ROOT)/$(EX_NUM)
 SRCS_DIR = ./ ./ex02 $(PRJ_DIR)
 CF_INC = -I$(PRJ_DIR) -I$(EX_NUM)
-OBJ_DIR = objs/$(EX_NUM)
-DEP_DIR = .deps/$(EX_NUM)
+OBJ_DIR = obj/$(EX_NUM)
+DEP_DIR = .dep/$(EX_NUM)
 
 # vpath for serching source files in multiple directories
 vpath %.cpp $(SRCS_DIR)
 
 # Object files and dependency files
-APP_OBJS = $(addprefix $(OBJ_DIR)/, $(APP_SRCS:.cpp=.o))
-TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(TEST_SRCS:.cpp=.o))
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
-DEPS = $(addprefix $(DEP_DIR)/, $(SRCS:.cpp=.d))
+APP_OBJ = $(addprefix $(OBJ_DIR)/, $(APP_SRCS:.cpp=.o))
+TEST_OBJ = $(addprefix $(OBJ_DIR)/, $(TEST_SRCS:.cpp=.o))
+OBJ = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
+DEP = $(addprefix $(DEP_DIR)/, $(SRCS:.cpp=.d))
 
 # Rules for building object files
 $(OBJ_DIR)/%.o: %.cpp
@@ -89,7 +89,7 @@ $(DEP_DIR)/%.d: %.cpp
 	@mkdir -p $(DEP_DIR)
 
 # Enable dependency file
--include $(DEPS)
+-include $(DEP)
 
 # Default target
 all:
@@ -99,8 +99,8 @@ all:
 .PHONY: all
 
 # Build Target
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) -o $(NAME)
+$(NAME): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) $(LIBS) -o $(NAME)
 
 # Rule for removing object & dependency files
 clean:
