@@ -6,11 +6,11 @@ import time
 
 
 def test_successful_registration(irc_server):
-    client = IrcClient()
+    client = IrcClient(host=irc_server.host, port=irc_server.port)
     client.connect()
 
     # Send registration commands
-    client.send_command("PASS testpass")
+    client.send_command(f"PASS {irc_server.password}")
     client.send_command("NICK testnick")
     client.send_command("USER testuser 0 * :Test User")
 
@@ -27,18 +27,18 @@ def test_successful_registration(irc_server):
     client.disconnect()
 
 def test_nick_collision(irc_server):
-    client1 = IrcClient()
+    client1 = IrcClient(host=irc_server.host, port=irc_server.port)
     client1.connect()
-    client1.send_command("PASS testpass")
+    client1.send_command(f"PASS {irc_server.password}")
     client1.send_command("NICK testnick")
     client1.send_command("USER testuser1 0 * :Test User 1")
     time.sleep(0.5)
     responses1 = client1.get_full_response()
     assert any("001 testnick" in r for r in responses1), "Client 1: RPL_WELCOME (001) not received"
 
-    client2 = IrcClient()
+    client2 = IrcClient(host=irc_server.host, port=irc_server.port)
     client2.connect()
-    client2.send_command("PASS testpass")
+    client2.send_command(f"PASS {irc_server.password}")
     client2.send_command("NICK testnick") # Attempt to use same nickname
     client2.send_command("USER testuser2 0 * :Test User 2")
     time.sleep(0.5)
@@ -52,7 +52,7 @@ def test_nick_collision(irc_server):
     client2.disconnect()
 
 def test_missing_password(irc_server):
-    client = IrcClient()
+    client = IrcClient(host=irc_server.host, port=irc_server.port)
     client.connect()
 
     client.send_command("NICK testnick")
