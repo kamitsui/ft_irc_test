@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  ngircd:
+    image: linuxserver/ngircd
+    container_name: ng_ircd
+    ports:
+      - "6669:6667"
+    volumes:
+    volumes:
+      - ./ngircd.conf:/config/ngircd.conf

@@ -59,3 +59,4 @@
 doxygen-awesome-css/
 html/
 node_modules/
+.venv/

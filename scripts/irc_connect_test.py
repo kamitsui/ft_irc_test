@@ -4,7 +4,8 @@ import time
 # --- 設定項目 ---
 # 接続するIRCサーバーの情報
 SERVER = "127.0.0.1"  # サーバーのIPアドレス or ホスト名
-PORT = 6667           # サーバーのポート番号
+PORT = 6668           # サーバーのポート番号
+#PORT = 6667           # サーバーのポート番号
 NICKNAME = "py-test"  # 使用するニックネーム
 USERNAME = "pytest"   # 使用するユーザー名
 REALNAME = "Python Test Script" # ユーザーのフルネーム
