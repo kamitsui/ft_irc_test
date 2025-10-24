@@ -6,7 +6,7 @@
 #    By: kamitsui <kamitsui@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/15 19:38:29 by kamitsui          #+#    #+#              #
-#    Updated: 2025/10/23 10:51:21 by kamitsui         ###   ########.fr        #
+#    Updated: 2025/10/25 00:52:40 by kamitsui         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,13 +16,13 @@
 NAME = ft_irc_unittest
 #
 # Directories
-PRJ_DIR = ../..
-SRC_DIR = ./ $(PRJ_DIR)/src
+#PRJ_DIR = ../..
+SRC_DIR = ./ ../../src
 OBJ_DIR = obj
 DEP_DIR = .dep
 
 # Source
-SRC = \
+SRCS = \
       Channel.cpp \
       Client.cpp \
       CommandManager.cpp \
@@ -35,22 +35,31 @@ SRC = \
       Server.cpp \
       UserCommand.cpp \
 	  \
-	  ChannelTest.cpp \
 	  ClientTest.cpp \
-	  CommandManagerTest.cpp \
-	  JoinCommandTest.cpp \
-      NickCommandTest.cpp \
-      PartCommandTest.cpp \
       PassCommandTest.cpp \
-      PrivmsgCommandTest.cpp \
-      RepliesTest.cpp \
-      ServerTest.cpp \
+      NickCommandTest.cpp \
       UserCommandTest.cpp \
-      main.cpp
+	  ChannelTest.cpp \
+	  JoinPrivmsgPartTest.cpp \
+      main.cpp \
+	  \
+	  #\
+	  #ChannelTest.cpp \
+	  #ClientTest.cpp \
+	  #CommandManagerTest.cpp \
+	  #JoinCommandTest.cpp \
+      #NickCommandTest.cpp \
+      #PartCommandTest.cpp \
+      #PassCommandTest.cpp \
+      #PrivmsgCommandTest.cpp \
+      #RepliesTest.cpp \
+      #ServerTest.cpp \
+      #UserCommandTest.cpp \
+      #main.cpp
 
 # Compiler
 CXX = c++
-CF_INC = -I$(PRJ_DIR)/inc
+CF_INC = -I../../inc
 CF_DEP = -MMD -MP -MF $(@:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d)
 
 # Google Test Path without .env file.
@@ -70,32 +79,33 @@ LIBS ?= -L$(HOME)/goinfre/.brew/lib -lgtest -lgtest_main
 vpath %.cpp $(SRC_DIR)
 
 # Object files and dependency files
-OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
-DEP = $(addprefix $(DEP_DIR)/, $(SRC:.cpp=.d))
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
+DEPS = $(addprefix $(DEP_DIR)/, $(SRCS:.cpp=.d))
 
 # Rules for building object files
 $(OBJ_DIR)/%.o: %.cpp
-	@mkdir -p $(OBJ_DIR)
-	@mkdir -p $(DEP_DIR)
 	$(CXX) $(CXXFLAGS) $(CF_INC) $(CF_DEP) -c $< -o $@
 
 # Rules for building dependency files
-$(DEP_DIR)/%.d: %.cpp
-	@mkdir -p $(DEP_DIR)
-
-# Enable dependency file
--include $(DEP)
+#$(DEP_DIR)/%.d: %.cpp
+#	@mkdir -p $(DEP_DIR)
 
 # Default target
-all: $(NAME)
+all: directories $(NAME)
 	@echo "Build" "'$(NAME)'" "Complete!"
 	$(call ASCII_ART,$(NAME))
 	$(call ASK_AND_EXECUTE_ON_YES, ./$(NAME))
 .PHONY: all
 
+# Make Directories
+directories:
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(DEP_DIR)
+.PHONY: directories
+
 # Build Target
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) $(LIBS) -o $(NAME)
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) $(LIBS) -o $(NAME)
 
 # Rule for removing object & dependency files
 clean:
@@ -104,18 +114,21 @@ clean:
 
 # Rule for removing Target & others
 fclean: clean
-	rm -f $(ALL)
+	rm -f $(NAME)
 .PHONY: fclean
 
 # Rule for Clean & Build Target
 re: fclean all
 .PHONY: re
 
+# Enable dependency file
+-include $(DEPS)
+
 # ASCII Art : Display Tips the way to use.
 define ASCII_ART
 	@echo " _____________________________________________"
 	@echo "< Usage :                                     >"
-	@echo "<  $$ ./$(1)                               >"
+	@echo "<  $$ ./$(1)                        >"
 	@echo "----------------------------------------------"
 	@echo "       \   ^__^"
 	@echo "        \  (oo)\_______"

@@ -13,7 +13,7 @@
 # @file example_cpp09/Makefile
 
 # Directories
-PRJ_ROOT = ../../ft_irc
+PRJ_ROOT = ../../reference/
 # Default for the build rule (re, fclean, clean)
 OBJ_DIR = obj
 DEP_DIR = .dep

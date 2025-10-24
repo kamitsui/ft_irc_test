@@ -1,0 +1,111 @@
+#ifndef TEST_FIXTURE_HPP
+#define TEST_FIXTURE_HPP
+
+#include "Channel.hpp"
+#include "Client.hpp"
+#include "CommandManager.hpp"
+#include "JoinCommand.hpp"
+#include "NickCommand.hpp"
+#include "PartCommand.hpp"
+#include "PassCommand.hpp"
+#include "PrivmsgCommand.hpp"
+#include "Replies.hpp"
+#include "Server.hpp"
+#include "UserCommand.hpp"
+#include "gtest/gtest.h"
+#include <string>
+#include <vector>
+
+/**
+ * @brief Client::sendMessage をオーバーライドし、
+ * 送信されたメッセージを内部のベクタに保存するモッククラス
+ */
+class TestClient : public Client {
+  public:
+    std::vector<std::string> receivedMessages;
+
+    TestClient(int fd, const std::string &hostname) : Client(fd, hostname) {}
+
+    virtual ~TestClient() {}
+
+    // sendMessageをオーバーライド
+    virtual void sendMessage(const std::string &message) const {
+        // const_castが必要になるが、テスト目的のため許容する
+        const_cast<TestClient *>(this)->receivedMessages.push_back(message);
+    }
+
+    // 最後に受信したメッセージを取得 (テスト用ヘルパー)
+    std::string getLastMessage() const {
+        if (receivedMessages.empty()) {
+            return "";
+        }
+        return receivedMessages[receivedMessages.size() - 1];
+    }
+};
+
+/**
+ * @brief 全てのコマンドテストで使用する共通フィクスチャ
+ */
+class CommandTest : public ::testing::Test {
+  protected:
+    Server *server;
+    TestClient *client1; // メインのテスト対象クライアント
+    TestClient *client2; // ニックネーム衝突やPRIVMSGの相手用
+
+    // 各コマンドのインスタンス
+    PassCommand *passCmd;
+    NickCommand *nickCmd;
+    UserCommand *userCmd;
+    JoinCommand *joinCmd;
+    PrivmsgCommand *privmsgCmd;
+    PartCommand *partCmd;
+
+    std::vector<std::string> args;
+
+    virtual void SetUp() {
+        // 1. サーバーをリセットして初期化
+        Server::resetInstance();
+        server = Server::getInstance(6667, "pass123");
+
+        // 2. テスト用クライアントを作成 (FDは適当な負でない値)
+        client1 = new TestClient(10, "client1.host");
+        client2 = new TestClient(11, "client2.host");
+
+        // 3. サーバーにクライアントを"接続"
+        server->addTestClient(client1);
+        server->addTestClient(client2);
+
+        // 4. コマンドインスタンスを作成
+        passCmd = new PassCommand(server);
+        nickCmd = new NickCommand(server);
+        userCmd = new UserCommand(server);
+        joinCmd = new JoinCommand(server);
+        privmsgCmd = new PrivmsgCommand(server);
+        partCmd = new PartCommand(server);
+
+        // 5. 引数ベクタをクリア
+        args.clear();
+    }
+
+    virtual void TearDown() {
+        delete passCmd;
+        delete nickCmd;
+        delete userCmd;
+        delete joinCmd;
+        delete privmsgCmd;
+        delete partCmd;
+
+        // ClientはServerが所有権を持つため、Serverのデストラクタに任せる
+        Server::resetInstance();
+    }
+
+    // テスト用ヘルパー: クライアントを認証・登録済みにする
+    void registerClient(TestClient *client, const std::string &nick) {
+        client->setAuthenticated(true);
+        client->setNickname(nick);
+        client->setUsername("user");
+        client->setRegistered(true);
+    }
+};
+
+#endif

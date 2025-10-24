@@ -5,6 +5,13 @@
 // コンパイル時に全てのテストソースファイルを含めることで、
 // GTestがそれらを自動的に発見します。
 
+volatile bool g_running = true;
+
+void signalHandler(int signum) {
+    (void)signum;
+    g_running = false;
+}
+
 int main(int argc, char **argv) {
     // Initializes Google Test. This must be called before RUN_ALL_TESTS().
     ::testing::InitGoogleTest(&argc, argv);
