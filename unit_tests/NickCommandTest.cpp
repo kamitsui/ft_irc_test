@@ -102,8 +102,19 @@ TEST_F(CommandTest, Nick_Success_CompletesRegistration) {
     nickCmd->execute(client1, args);
 
     ASSERT_EQ(client1->getNickname(), "NewNick");
-    ASSERT_TRUE(client1->isRegistered());                                      // 登録完了
-    ASSERT_NE(client1->getLastMessage().find(RPL_WELCOME), std::string::npos); // ウェルカムメッセージ
+    ASSERT_TRUE(client1->isRegistered()); // 登録完了
+
+    // デバッグ出力 (これは残しても構いません)
+    // std::cout << "client1_recievedMessages: " << DebugVector<std::string>(client1->receivedMessages) << std::endl;
+
+    // --- 修正箇所 ---
+    // メッセージが空でないことを確認
+    ASSERT_FALSE(client1->receivedMessages.empty());
+    // 0番目のメッセージに RPL_WELCOME ("001") が含まれていることを確認
+    ASSERT_NE(client1->receivedMessages[0].find(RPL_WELCOME), std::string::npos);
+
+    // (オプション) 最後のメッセージが RPL_YOURHOST ("002") であることも確認できます
+    ASSERT_NE(client1->getLastMessage().find(RPL_YOURHOST), std::string::npos);
 }
 
 TEST_F(CommandTest, Nick_NotAuthenticated) {

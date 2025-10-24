@@ -29,9 +29,16 @@ class TestClient : public Client {
     virtual ~TestClient() {}
 
     // sendMessageをオーバーライド
+    // --- 修正前 ---
+    // virtual void sendMessage(const std::string &message) const {
+    //     // const_castが必要になるが、テスト目的のため許容する
+    //     const_cast<TestClient *>(this)->receivedMessages.push_back(message);
+    // }
+    // --- 修正箇所 ---
     virtual void sendMessage(const std::string &message) const {
-        // const_castが必要になるが、テスト目的のため許容する
-        const_cast<TestClient *>(this)->receivedMessages.push_back(message);
+        // 本物のClient::sendMessageと同様に、\r\n を付加して保存する
+        std::string fullMessage = message + "\r\n";
+        const_cast<TestClient *>(this)->receivedMessages.push_back(fullMessage);
     }
 
     // 最後に受信したメッセージを取得 (テスト用ヘルパー)
@@ -106,6 +113,48 @@ class CommandTest : public ::testing::Test {
         client->setUsername("user");
         client->setRegistered(true);
     }
+};
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+// テンプレートクラスの宣言
+template <typename T> class DebugVector {
+  public:
+    // コンストラクタ
+    explicit DebugVector(const std::vector<T> &vec) : m_vec(vec) {}
+
+    // フレンド関数として、ストリーミング演算子をオーバーロード
+    friend std::ostream &operator<<(std::ostream &os, const DebugVector &dv) {
+        os << "[ ";
+        for (const auto &elem : dv.m_vec) {
+            os << elem << " ";
+        }
+        os << "]";
+        return os;
+    }
+
+  private:
+    const std::vector<T> &m_vec;
+};
+
+// 例外処理：文字列ベクターの場合、引用符付きで出力するように特殊化
+template <> class DebugVector<std::string> {
+  public:
+    explicit DebugVector(const std::vector<std::string> &vec) : m_vec(vec) {}
+
+    friend std::ostream &operator<<(std::ostream &os, const DebugVector &dv) {
+        os << "[ ";
+        for (const auto &elem : dv.m_vec) {
+            os << "\"" << elem << "\" ";
+        }
+        os << "]";
+        return os;
+    }
+
+  private:
+    const std::vector<std::string> &m_vec;
 };
 
 #endif
