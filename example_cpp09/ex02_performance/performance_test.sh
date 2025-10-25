@@ -11,7 +11,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # --- Variables ---
-PRJ_DIR="../../../ft_irc/src_cpp09_ex02"
+PRJ_DIR="../../../reference/src_cpp09_ex02"
 EXECUTABLE="./$PRJ_DIR/PmergeMe"
 NUM_GENERATOR="./generate_numbers.sh"
 

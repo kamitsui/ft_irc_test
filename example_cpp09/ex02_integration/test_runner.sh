@@ -7,7 +7,7 @@ YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 # --- Variables ---
-PRJ_DIR="../../../ft_irc/src_cpp09_ex02"
+PRJ_DIR="../../../reference/src_cpp09_ex02"
 EXECUTABLE="./$PRJ_DIR/PmergeMe"
 TMP_OUTPUT="tmp_output.log"
 TMP_ERROR="tmp_error.log"

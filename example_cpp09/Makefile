@@ -6,14 +6,14 @@
 #    By: kamitsui <kamitsui@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/15 19:38:29 by kamitsui          #+#    #+#              #
-#    Updated: 2025/10/12 22:08:18 by kamitsui         ###   ########.fr        #
+#    Updated: 2025/10/25 05:37:04 by kamitsui         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # @file example_cpp09/Makefile
 
 # Directories
-PRJ_ROOT = ../../reference/
+PRJ_ROOT = ../../reference
 # Default for the build rule (re, fclean, clean)
 OBJ_DIR = obj
 DEP_DIR = .dep
