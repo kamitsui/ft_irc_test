@@ -2,34 +2,39 @@
 
 このディレクトリには、`ft_irc`サーバーの機能とプロトコル準拠を検証するための統合テストスイートが含まれています。`pytest`フレームワークを使用して、実際のIRCサーバーインスタンスとの対話をシミュレートします。
 
-## テスト環境のセットアップ
+## テストの自動化
 
-統合テストを実行する前に、必要なPythonパッケージをインストールしてください。
-
-```bash
-pip install -r requirements.txt
+```sh
+make           # テスト環境構築(.venv)　＋　テスト実行
+make install   # テスト環境構築(.venv)
+make run       # テスト実行
+make clean     # テスト環境削除
 ```
 
-## テストの実行方法
+## 手動でのテスト
 
-このディレクトリに移動し、`pytest`コマンドを実行することで、すべての統合テストを実行できます。
+* 作業ディレクトリ：`integration_tests/`
+* 統合テストを実行する前に、Python仮想環境構築と、必要なPythonパッケージをインストールします。
+> ```bash
+> python3 -m venv .venv
+> source .venv/bin/activate
+> pip install -r requirements.txt
+> ```
 
-```bash
-cd test/integration_tests
-pytest
-```
+* テストスクリプト全て実行。
+> ```bash
+> pytest
+> ```
 
-特定のテストファイルのみを実行したい場合は、ファイル名を指定します。
+* 特定のテストファイルのみを実行したい場合は、ファイル名を指定します。
+> ```bash
+> pytest test_registration.py
+> ```
 
-```bash
-pytest test_registration.py
-```
-
-特定のテスト関数のみを実行したい場合は、`::`で関数名を指定します。
-
-```bash
-pytest test_registration.py::test_successful_registration
-```
+* 特定のテスト関数のみを実行したい場合は、`::`で関数名を指定します。
+> ```bash
+> pytest test_registration.py::test_successful_registration
+> ```
 
 ## テスト設定 (`pytest.ini`)
 
@@ -52,7 +57,9 @@ irc_server_password = pass
 
 `irc_server`フィクスチャは、各テスト関数の実行前にIRCサーバーを起動し、テスト完了後にサーバーを停止します。これにより、各テストが独立したクリーンなサーバーインスタンスに対して実行されることが保証されます。
 
-## テストユーティリティ (`irc_test_utils.py`)
+## テストスクリプト
+
+### テストユーティリティ (`irc_test_utils.py`)
 
 このファイルには、IRCサーバーとクライアントとの対話に必要なヘルパークラスが含まれています。
 
@@ -61,7 +68,7 @@ irc_server_password = pass
 
 これらのユーティリティは、テストコードを簡潔に保ち、IRCプロトコルとの低レベルな対話を抽象化するのに役立ちます。
 
-## 登録テスト (`test_registration.py`)
+### 登録テスト (`test_registration.py`)
 
 このファイルには、IRCサーバーへのユーザー登録に関連する統合テストが含まれています。
 
