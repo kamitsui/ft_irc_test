@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PORT="6667"
+
 #SCRIPT_DIR=$(dirname "$0")
 #echo "スクリプトのディレクトリ: ${SCRIPT_DIR}"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -23,7 +25,9 @@ readonly CLIENT_PANE=2
 # 各コマンド実行後の基本的な待機時間（秒）
 readonly WAIT_SECONDS=2
 # 実行ファイル
-readonly TARGET="$SCRIPT_DIR/../../ft_irc/src/server"
+readonly TARGET="$SCRIPT_DIR/../../ircserv"
+# パスワード
+readonly PASS="password"
 
 # --- 関数定義 ---
 
@@ -99,7 +103,7 @@ send_ctrl_char() {
 # サーバー側の操作を行う関数
 run_server_operations() {
   echo "--- サーバー側の操作を開始 ---"
-  exec_command $SERVER_PANE "$TARGET 6667" 5
+  exec_command $SERVER_PANE "$TARGET $PORT $PASS" 5
   echo "--- サーバーが起動しました ---"
 }
 
@@ -108,18 +112,18 @@ run_client_operations() {
   echo "--- クライアント側の操作を開始 ---"
 
   # 1回目の接続
-  exec_command $CLIENT_PANE "nc localhost 6667" 3
+  exec_command $CLIENT_PANE "nc localhost $PORT" 3
   exec_command $CLIENT_PANE "USER guest 0 * :Guest User"
   exec_command $CLIENT_PANE "NICK guest"
   send_ctrl_char $CLIENT_PANE "C-d"
 
   # 2回目の接続
-  exec_command $CLIENT_PANE "nc localhost 6667" 3
+  exec_command $CLIENT_PANE "nc localhost $PORT" 3
   exec_command $CLIENT_PANE "Hello again, server!"
   send_ctrl_char $CLIENT_PANE "C-d"
 
   # 3回目の接続
-  exec_command $CLIENT_PANE "nc localhost 6667" 3
+  exec_command $CLIENT_PANE "nc localhost $PORT" 3
   exec_command $CLIENT_PANE "This is the final message."
   send_ctrl_char $CLIENT_PANE "C-c"
   exec_command $CLIENT_PANE 'echo $?'

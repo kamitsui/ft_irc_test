@@ -24,7 +24,9 @@ docker compose -f docker-compose.ngircd.yml up -d
 >
 > port は `6669` に設定
 
-### テストのフレームワーク？
+### 不採用
+
+**amd64アーキテクチャ向けのみ。**
 
 * [テストサーバー](https://github.com/irccom/test-servers)
 > ```sh

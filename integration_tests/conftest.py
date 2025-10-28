@@ -1,45 +1,65 @@
 import pytest
-from irc_test_utils import ExecutableIrcServer, DockerIrcServer
-import os
+import subprocess
+import time
+import socket
+import select
 
-def pytest_addoption(parser):
-    parser.addini("test_target", "The test target to use: 'executable' or 'docker'.", default='executable')
-    
-    # Options for 'executable' target
-    parser.addini("executable_path", "Path to the IRC server executable relative to the project root.")
-    parser.addini("executable_password", "Password for the IRC server.", default="pass")
-
-    # Options for 'docker' target
-    parser.addini("docker_compose_path", "Path to the docker-compose.yml file relative to the project root.")
-    parser.addini("docker_host", "Hostname for the Dockerized IRC server.", default="localhost")
-    parser.addini("docker_port", "Port for the Dockerized IRC server.", default="6668")
-    parser.addini("docker_password", "Password for the Dockerized IRC server.", default="pass")
+# --- サーバー設定 ---
+SERVER_EXECUTABLE = "../../ircserv"
+SERVER_PORT = 6668
+SERVER_PASSWORD = "testpass"
+SERVER_HOST = "127.0.0.1"
 
 @pytest.fixture(scope="function")
 def irc_server(request):
-    test_target = request.config.getini("test_target")
+    """
+    各テスト関数の実行前にサーバーを起動し、
+    テスト終了後にサーバーを停止するフィクスチャ。
     
-    server = None
-    if test_target == 'executable':
-        relative_path = request.config.getini("executable_path")
-        password = request.config.getini("executable_password")
-        absolute_path = os.path.join(request.config.rootdir, relative_path)
-        server = ExecutableIrcServer(executable_path=absolute_path, password=password)
+    `request.param` を使用して、テストごとに異なる引数で
+    サーバーを起動することも将来的に可能。
+    """
+    print(f"\nStarting ircserv on {SERVER_HOST}:{SERVER_PORT}...")
     
-    elif test_target == 'docker':
-        relative_path = request.config.getini("docker_compose_path")
-        host = request.config.getini("docker_host")
-        port = int(request.config.getini("docker_port"))
-        password = request.config.getini("docker_password")
-        absolute_path = os.path.join(request.config.rootdir, relative_path)
-        server = DockerIrcServer(compose_path=absolute_path, host=host, port=port, password=password)
+    server_process = subprocess.Popen(
+        [SERVER_EXECUTABLE, str(SERVER_PORT), SERVER_PASSWORD],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    
+    # サーバーが起動するのを待つ
+    time.sleep(0.3) 
+    
+    if server_process.poll() is not None:
+        stderr_output = server_process.stderr.read()
+        raise RuntimeError(f"サーバーの起動に失敗しました: {stderr_output}")
 
-    else:
-        pytest.fail(f"Invalid test_target specified in pytest.ini: {test_target}")
+    # テスト本体 (yield) にプロセスを渡す
+    yield server_process
 
-    if server:
-        server.start()
-        yield server
-        server.stop()
-    else:
-        pytest.fail("Failed to initialize a server fixture.")
+    # テスト終了後、サーバープロセスを停止
+    print("\nShutting down ircserv...")
+    server_process.terminate()
+    try:
+        server_process.wait(timeout=1.0)
+    except subprocess.TimeoutExpired:
+        print("サーバーが時間内に終了しなかったため、強制終了します。")
+        server_process.kill()
+        
+    # テスト失敗時にサーバーのログを出力する
+    if request.node.rep_call.failed:
+        print("\n--- Server stdout (on test failure) ---")
+        print(server_process.stdout.read())
+        print("--- Server stderr (on test failure) ---")
+        print(server_process.stderr.read())
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    テストが失敗したかどうかを判定し、フィクスチャで
+    ログを出力できるようにするためのフック
+    """
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)
