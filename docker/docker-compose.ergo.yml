@@ -2,8 +2,10 @@ version: '3.8'
 services:
   ergo:
     image: ghcr.io/ergochat/ergo
-    container_name: ergo_ircd
+    container_name: ergo
     ports:
+      # ローカル6668にコンテナの6667ポートを割り当てる。
       - "6668:6667"
     volumes:
-      - ./ircd.yaml:/ergo/ircd.yaml # ローカルのファイルをコンテナにマウント
+      # ローカルのファイルをコンテナにマウント
+      - ./ergo-data/ircd.yaml:/ircd/ircd.yaml

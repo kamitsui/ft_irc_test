@@ -29,6 +29,9 @@
 
 # cpp09/ex00 : BitcoinExchange data base
 !*.csv
+# ft_irc
+!*.conf
+!*.yaml
 
 # Git
 !.gitignore
