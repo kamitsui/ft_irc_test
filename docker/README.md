@@ -2,7 +2,46 @@
 
 ## IRC クライアント
 
-編集中
+IRCサーバーの実装を検証するために、軽量でCLIベースのIRCクライアントである **irssi** を使います。
+
+### irssiの起動方法 (Docker)
+
+```bash
+docker run -it --rm \
+  --name=irssi \
+  --network host \
+  irssi
+```
+
+* `--network host`: ホストのネットワークスタックを共有します。
+* これにより、コンテナ内から `localhost:<あなたのIRCサーバーのポート番号>` でIRCサーバーに接続できます。
+
+* **注意:** `--network host` は、コンテナがホストのネットワークインターフェースを直接使用することを意味します。これにより、コンテナ内のirssiがホスト上で動作しているIRCサーバーに `localhost` 経由で接続できるようになります。セキュリティ上の理由から、本番環境での使用は推奨されませんが、開発・検証目的では非常に便利です。
+
+1. irssi内でのIRCサーバーへの接続
+```
+/connect localhost <あなたのIRCサーバーのポート番号>
+# 例
+# /connect localhost 6667
+```
+
+2. コマンド操作
+
+* フォーマット
+```
+/nick <your nick name>
+/user <user name> <host name> <server name> :<real name>
+/join #<channel name>
+/quit
+```
+
+* 例
+```
+/nick testuser
+/user testuser 0 * :Test User
+/join #general
+/quit
+```
 
 ## IRCサーバー
 
