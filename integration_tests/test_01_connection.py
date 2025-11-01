@@ -34,6 +34,11 @@ def test_nick_in_use(irc_server):
     client2.send(f"NICK UserA")
     client2.send(f"USER userb 0 * :User B")
 
+    ### NICK, USER プロトコル
+    # NICK <nickname>
+    # USER <username> <hostname> <servername> :<realname>
+    ###
+
     # 433 (ERR_NICKNAMEINUSE) を待つ
     msg = client2.wait_for_command("433")
 

@@ -1,64 +1,96 @@
+version: '3.8'
+
 services:
-  test_runner:
-    # pytestやtmuxテストスクリプトを実行するコンテナ
+  irc-server:
     build:
-      context: ./docker/test_runner
-    networks:
-      - irc_network
-    # 必要に応じてボリュームや環境変数を追加
-
-  # 1. ft_irc サーバー
-  ft_irc:
-    build: ./ft_irc
-    container_name: ft_irc_server
-    networks:
-      - irc_network
-    ports:
-      - "6667:6667" # ホストポート6667をft_ircにマッピング
-    profiles:
-      - ft_irc_profile
-
-  # 2. ergo サーバー
-  ergo:
-    image: ghcr.io/ergochat/ergo
-    container_name: ergo_server
-    networks:
-      - irc_network
-    ports:
-      - "6668:6667" # ホストポート6668をergoにマッピング
-    profiles:
-      - ergo_profile
-
-  # 3. ngircd サーバー
-  ngircd:
-    image: lscr.io/linuxserver/ngircd:latest
-    container_name: ngircd_server
-    networks:
-      - irc_network
+      context: .
+      dockerfile: Dockerfile # IRCサーバーのDockerfileを指定
     volumes:
-      - ./docker/ngircd/ngircd.conf:/config/ngircd.conf
+      - ../../:/app
     ports:
-      - "6669:6667" # ホストポート6669をngircdにマッピング
-    profiles:
-      - ngircd_profile
-
-  # irssi クライアント
-  irssi:
-    image: irssi/irssi
-    container_name: irssi_client
-    networks:
-      - irc_network
+      - "6667:6667" # ホストの6667ポートをコンテナの6667ポートにマッピング (外部からのアクセス用)
+    container_name: "irc-server"
     stdin_open: true
     tty: true
-
-  # weechat クライアント
-  weechat:
-    image: weechat/weechat
-    container_name: weechat_client
     networks:
-      - irc_network
-    stdin_open: true
-    tty: true
+      - irc-net # カスタムネットワークに接続
 
+  irssi-client:
+    image: irssi:latest # irssiの公式イメージを使用
+    container_name: "irssi-client"
+    stdin_open: true # irssiの対話型操作を可能にする
+    tty: true # irssiの対話型操作を可能にする
+    networks:
+      - irc-net # カスタムネットワークに接続
+    depends_on:
+      - irc-server # irc-serverが起動してからirssi-clientを起動する
+    volumes:
+      - ./irssi-data/config:/home/user/.irssi/config # ホストの設定ファイルをコンテナにマウント
 networks:
-  irc_network:
+  irc-net:
+    driver: bridge
+
+#services:
+#  test_runner:
+#    # pytestやtmuxテストスクリプトを実行するコンテナ
+#    build:
+#      context: ./docker/test_runner
+#    networks:
+#      - irc_network
+#    # 必要に応じてボリュームや環境変数を追加
+#
+#  # 1. ft_irc サーバー
+#  ft_irc:
+#    build: ./ft_irc
+#    container_name: ft_irc_server
+#    networks:
+#      - irc_network
+#    ports:
+#      - "6667:6667" # ホストポート6667をft_ircにマッピング
+#    profiles:
+#      - ft_irc_profile
+#
+#  # 2. ergo サーバー
+#  ergo:
+#    image: ghcr.io/ergochat/ergo
+#    container_name: ergo_server
+#    networks:
+#      - irc_network
+#    ports:
+#      - "6668:6667" # ホストポート6668をergoにマッピング
+#    profiles:
+#      - ergo_profile
+#
+#  # 3. ngircd サーバー
+#  ngircd:
+#    image: lscr.io/linuxserver/ngircd:latest
+#    container_name: ngircd_server
+#    networks:
+#      - irc_network
+#    volumes:
+#      - ./docker/ngircd/ngircd.conf:/config/ngircd.conf
+#    ports:
+#      - "6669:6667" # ホストポート6669をngircdにマッピング
+#    profiles:
+#      - ngircd_profile
+#
+#  # irssi クライアント
+#  irssi:
+#    image: irssi/irssi
+#    container_name: irssi_client
+#    networks:
+#      - irc_network
+#    stdin_open: true
+#    tty: true
+#
+#  # weechat クライアント
+#  weechat:
+#    image: weechat/weechat
+#    container_name: weechat_client
+#    networks:
+#      - irc_network
+#    stdin_open: true
+#    tty: true
+#
+#networks:
+#  irc_network:
