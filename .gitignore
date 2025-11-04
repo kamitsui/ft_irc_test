@@ -32,6 +32,7 @@
 # ft_irc
 !*.conf
 !*.yaml
+!config
 
 # Git
 !.gitignore
