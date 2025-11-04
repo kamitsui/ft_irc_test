@@ -29,7 +29,7 @@ endif
 
 run:
 	@echo "Running the application..."
-	$(VENV_PYTEST) .
+	$(VENV_PYTEST) -v -s .
 
 clean:
 	@echo "Cleaning up virtual environment..."
