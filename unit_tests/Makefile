@@ -6,7 +6,7 @@
 #    By: kamitsui <kamitsui@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/15 19:38:29 by kamitsui          #+#    #+#              #
-#    Updated: 2025/10/25 00:52:40 by kamitsui         ###   ########.fr        #
+#    Updated: 2025/11/04 04:57:58 by kamitsui         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,35 +31,31 @@ SRCS = \
       PartCommand.cpp \
       PassCommand.cpp \
       PrivmsgCommand.cpp \
+	  QuitCommand.cpp \
       Replies.cpp \
       Server.cpp \
       UserCommand.cpp \
-	  \
-	  ClientTest.cpp \
+      \
+      ClientTest.cpp \
       PassCommandTest.cpp \
       NickCommandTest.cpp \
       UserCommandTest.cpp \
-	  ChannelTest.cpp \
-	  JoinPrivmsgPartTest.cpp \
+      ChannelTest.cpp \
+      JoinPrivmsgPartTest.cpp \
+      \
+      CommandManagerTest.cpp \
+      \
       main.cpp \
 	  \
-	  #\
-	  #ChannelTest.cpp \
-	  #ClientTest.cpp \
-	  #CommandManagerTest.cpp \
-	  #JoinCommandTest.cpp \
-      #NickCommandTest.cpp \
-      #PartCommandTest.cpp \
-      #PassCommandTest.cpp \
-      #PrivmsgCommandTest.cpp \
       #RepliesTest.cpp \
       #ServerTest.cpp \
-      #UserCommandTest.cpp \
-      #main.cpp
+      #PrivmsgCommandTest.cpp \
+      #PartCommandTest.cpp \
+	  #JoinCommandTest.cpp \
 
 # Compiler
 CXX = c++
-CF_INC = -I../../inc
+CF_INC = -I../../inc -I./
 CF_DEP = -MMD -MP -MF $(@:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d)
 
 # Google Test Path without .env file.

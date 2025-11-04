@@ -115,6 +115,53 @@ class CommandTest : public ::testing::Test {
     }
 };
 
+/**
+ * @brief 全てのコマンドテストで使用する共通フィクスチャ
+ */
+class CommandManagerTest : public ::testing::Test {
+  protected:
+    Server *server;
+    CommandManager *cmdManager;
+    TestClient *client1; // メインのテスト対象クライアント
+    TestClient *client2; // ニックネーム衝突やPRIVMSGの相手用
+
+    std::vector<std::string> args;
+
+    virtual void SetUp() {
+        // 1. サーバーをリセットして初期化
+        Server::resetInstance();
+        server = Server::getInstance(6667, "pass123");
+
+        // 2. テスト用クライアントを作成 (FDは適当な負でない値)
+        client1 = new TestClient(10, "client1.host");
+        client2 = new TestClient(11, "client2.host");
+
+        // 3. サーバーにクライアントを"接続"
+        server->addTestClient(client1);
+        server->addTestClient(client2);
+
+        // 4. 引数ベクタをクリア
+        args.clear();
+
+        // コマンドマネージャーインスタンスを作成
+        cmdManager = new CommandManager(server);
+    }
+
+    virtual void TearDown() {
+        delete cmdManager;
+
+        // ClientはServerが所有権を持つため、Serverのデストラクタに任せる
+        Server::resetInstance();
+    }
+
+    // テスト用ヘルパー: クライアントを認証・登録済みにする
+    void registerClient(TestClient *client, const std::string &nick) {
+        client->setAuthenticated(true);
+        client->setNickname(nick);
+        client->setUsername("user");
+        client->setRegistered(true);
+    }
+};
 #include <iostream>
 #include <string>
 #include <vector>

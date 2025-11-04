@@ -1,74 +1,67 @@
-#include "gtest/gtest.h"
 #include "CommandManager.hpp"
-#include "Server.hpp"
 #include "Client.hpp"
 #include "Replies.hpp"
-
-class CommandManagerTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        server = new Server("password");
-        client = new Client(1, "127.0.0.1");
-        client->setAuthenticated(true);
-        client->setNickname("old_nick");
-        client->setUsername("user");
-        client->setRegistered(true);
-        server->addClient(client);
-
-        cmdManager = new CommandManager();
-    }
-
-    void TearDown() override {
-        delete server;
-        // client is deleted by server's destructor
-        delete cmdManager;
-    }
-
-    Server* server;
-    Client* client;
-    CommandManager* cmdManager;
-};
+#include "Server.hpp"
+#include "TestFixture.hpp"
+#include "gtest/gtest.h"
 
 TEST_F(CommandManagerTest, ExecuteSimpleCommand) {
-    cmdManager->executeCommand(server, client, "NICK new_nick");
-    EXPECT_EQ(client->getNickname(), "new_nick");
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "NICK new_nick");
+    EXPECT_EQ(client1->getNickname(), "new_nick");
 }
 
 TEST_F(CommandManagerTest, ExecuteCommandWithTrailingArg) {
-    Client* receiver = new Client(2, "127.0.0.1");
-    receiver->setNickname("receiver");
-    receiver->setUsername("receiver_user");
-    receiver->setRegistered(true);
-    server->addClient(receiver);
+    registerClient(client1, "client1_nick");
+    registerClient(client2, "client2");
 
-    cmdManager->executeCommand(server, client, "PRIVMSG receiver :Hello there!");
-    
-    std::string expected_msg = ":" + client->getPrefix() + " PRIVMSG receiver :Hello there!\r\n";
-    EXPECT_EQ(receiver->getSendBuffer(), expected_msg);
+    cmdManager->parseAndExecute(client1, "PRIVMSG client2 :Hello there!");
+    std::string expected_msg = client1->getPrefix() + " PRIVMSG client2 :Hello there!\r\n";
+    EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
 
 TEST_F(CommandManagerTest, ExecuteUnknownCommand) {
-    cmdManager->executeCommand(server, client, "UNKNOWNCMD some args");
-    
-    std::string expected_reply = ERR_UNKNOWNCOMMAND(client->getNickname(), "UNKNOWNCMD");
-    EXPECT_EQ(client->getSendBuffer(), expected_reply);
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "UNKNOWNCMD some args");
+
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNCOMMAND,
+                                             "UNKNOWNCMD :Unknown command") +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(CommandManagerTest, ExecuteCaseInsensitiveCommand) {
-    cmdManager->executeCommand(server, client, "nick case_insensitive_nick");
-    EXPECT_EQ(client->getNickname(), "case_insensitive_nick");
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "nick case_nick");
+    EXPECT_EQ(client1->getNickname(), "case_nick");
 }
 
 TEST_F(CommandManagerTest, ExecuteEmptyCommand) {
-    cmdManager->executeCommand(server, client, "");
-    EXPECT_TRUE(client->getSendBuffer().empty());
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "");
+    EXPECT_TRUE(client1->getLastMessage().empty());
 }
 
 TEST_F(CommandManagerTest, ExecuteCommandWithoutArgs) {
-    // This tests that the CommandManager correctly passes an empty argument list
-    // to the command, which should then handle the error.
-    cmdManager->executeCommand(server, client, "NICK");
-    
-    std::string expected_reply = ERR_NONICKNAMEGIVEN(client->getNickname());
-    EXPECT_EQ(client->getSendBuffer(), expected_reply);
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "NICK");
+
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN, ":No nickname given") +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
+}
+
+TEST_F(CommandManagerTest, ExecuteQuitCommandWithMessage) {
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "QUIT :Gone to lunch");
+    EXPECT_TRUE(client1->isMarkedForDisconnect());
+    EXPECT_EQ(client1->getQuitMessage(), "Gone to lunch");
+}
+
+TEST_F(CommandManagerTest, ExecuteQuitCommandWithoutMessage) {
+    registerClient(client1, "client1_nick");
+    cmdManager->parseAndExecute(client1, "QUIT");
+    EXPECT_TRUE(client1->isMarkedForDisconnect());
+    EXPECT_EQ(client1->getQuitMessage(), "");
 }
