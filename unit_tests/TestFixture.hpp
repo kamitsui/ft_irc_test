@@ -48,6 +48,11 @@ class TestClient : public Client {
         }
         return receivedMessages[receivedMessages.size() - 1];
     }
+
+    // テスト用に最終アクティビティ時刻を設定する
+    void setLastActivityTime(time_t newTime) {
+        this->_lastActivityTime = newTime;
+    }
 };
 
 /**

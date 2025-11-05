@@ -36,6 +36,7 @@ SRCS = \
       Server.cpp \
       UserCommand.cpp \
       PingCommand.cpp \
+      PongCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \

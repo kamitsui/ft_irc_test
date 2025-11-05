@@ -65,3 +65,18 @@ TEST_F(CommandManagerTest, ExecuteQuitCommandWithoutMessage) {
     EXPECT_TRUE(client1->isMarkedForDisconnect());
     EXPECT_EQ(client1->getQuitMessage(), "");
 }
+
+TEST_F(CommandManagerTest, ExecutePongCommandUpdatesActivityTime) {
+    registerClient(client1, "client1_nick");
+
+    // 1. 最終アクティビティ時刻を意図的に古く設定
+    time_t oldTime = time(NULL) - 10;
+    client1->setLastActivityTime(oldTime);
+    ASSERT_EQ(client1->getLastActivityTime(), oldTime);
+
+    // 2. PONG コマンドを実行
+    cmdManager->parseAndExecute(client1, "PONG :some_token");
+
+    // 3. 最終アクティビティ時刻が更新されたことを確認
+    EXPECT_GT(client1->getLastActivityTime(), oldTime);
+}
