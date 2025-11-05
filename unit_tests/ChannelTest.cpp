@@ -163,3 +163,17 @@ TEST_F(ChannelTest, TopicManagement) {
     channel->setTopic("A new topic.");
     ASSERT_EQ(channel->getTopic(), "A new topic.");
 }
+
+TEST_F(ChannelTest, OperatorManagement) {
+    // client1 is not an operator initially
+    ASSERT_FALSE(channel->isOperator(client1));
+
+    // Add client1 as an operator
+    channel->addOperator(client1);
+    ASSERT_TRUE(channel->isOperator(client1));
+    ASSERT_FALSE(channel->isOperator(client2)); // client2 should still not be an op
+
+    // Remove client1 as an operator
+    channel->removeOperator(client1);
+    ASSERT_FALSE(channel->isOperator(client1));
+}

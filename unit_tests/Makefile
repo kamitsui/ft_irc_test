@@ -41,6 +41,7 @@ SRCS = \
       NoticeCommand.cpp \
       NamesCommand.cpp \
       TopicCommand.cpp \
+      ModeCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -52,6 +53,7 @@ SRCS = \
       NoticeCommandTest.cpp \
       NamesCommandTest.cpp \
       TopicCommandTest.cpp \
+      ModeCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
