@@ -80,3 +80,28 @@ TEST_F(CommandManagerTest, ExecutePongCommandUpdatesActivityTime) {
     // 3. 最終アクティビティ時刻が更新されたことを確認
     EXPECT_GT(client1->getLastActivityTime(), oldTime);
 }
+
+TEST_F(CommandManagerTest, RemoveClientCleansUpChannels) {
+    registerClient(client1, "client1_nick");
+    registerClient(client2, "client2_nick");
+
+    // 1. client1 と client2 を #test チャンネルに参加させる
+    Channel* channel = new Channel("#test");
+    server->addChannel(channel);
+    channel->addMember(client1);
+    channel->addMember(client2);
+    client1->addChannel(channel);
+    client2->addChannel(channel);
+
+    ASSERT_TRUE(channel->isMember(client1));
+    ASSERT_TRUE(channel->isMember(client2));
+    ASSERT_EQ(channel->getMembers().size(), 2);
+
+    // 2. client1 をサーバーから削除
+    server->removeClient(client1->getFd());
+
+    // 3. client1 がチャンネルから削除され、client2 は残っていることを確認
+    EXPECT_FALSE(channel->isMember(client1));
+    EXPECT_TRUE(channel->isMember(client2));
+    EXPECT_EQ(channel->getMembers().size(), 1);
+}

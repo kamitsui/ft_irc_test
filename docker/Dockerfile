@@ -56,6 +56,7 @@ RUN DEBIAN_PRIORITY=critical apt-get update && apt-get install -y \
 	clang \
 	cmake \
 	git \
+	git-lfs
 	valgrind \
 	wget \
 	curl \
@@ -71,6 +72,9 @@ RUN DEBIAN_PRIORITY=critical apt-get update && apt-get install -y \
 	inotify-tools \
 	python3.10-venv \
 	&& apt-get clean
+
+# Git LFS を初期化（ユーザーごとに実施）：git pull, checkout, restore 操作を実行した際に、Git LFSが正しく動作します。
+RUN git lfs install
 
 # 基本ツール
 RUN apt-get update && apt-get install -y --no-install-recommends \
