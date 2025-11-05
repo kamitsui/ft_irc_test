@@ -39,6 +39,7 @@ SRCS = \
       PingCommand.cpp \
       PongCommand.cpp \
       NoticeCommand.cpp \
+      NamesCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -48,6 +49,7 @@ SRCS = \
       JoinPrivmsgPartTest.cpp \
       PingCommand_test.cpp \
       NoticeCommandTest.cpp \
+      NamesCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
