@@ -42,7 +42,6 @@ def test_join_and_names(registered_clients):
     assert names_msg["args"] == ["UserA", "=", "#test", "UserA"]
 
     assert end_names_msg is not None, "RPL_ENDOFNAMES (366) が受信できませんでした"
-    # assert end_names_msg["args"] == ["UserA", "#test", "End of /NAMES list."]
     # RFC1459では以下の定義だが、RFC2812に合わせる。
     # ```
     # 366     RPL_ENDOFNAMES

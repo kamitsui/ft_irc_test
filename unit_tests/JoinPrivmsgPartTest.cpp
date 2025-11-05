@@ -113,3 +113,57 @@ TEST_F(ChannelCommandsTest, Part_LastMember) {
     // チャンネルが削除される
     ASSERT_TRUE(server->getChannel("#test") == NULL);
 }
+
+// --- Multiple Channel Operations ---
+
+TEST_F(ChannelCommandsTest, Join_MultipleChannels) {
+    args.push_back("#chan1,#chan2");
+    joinCmd->execute(client1, args);
+
+    Channel *ch1 = server->getChannel("#chan1");
+    Channel *ch2 = server->getChannel("#chan2");
+
+    ASSERT_TRUE(ch1 != NULL);
+    ASSERT_TRUE(ch2 != NULL);
+    EXPECT_TRUE(ch1->isMember(client1));
+    EXPECT_TRUE(ch2->isMember(client1));
+    EXPECT_EQ(client1->getChannels().size(), 2);
+}
+
+TEST_F(ChannelCommandsTest, Part_MultipleChannels) {
+    // Setup: client1 joins #chan1 and #chan2
+    Channel *ch1 = new Channel("#chan1");
+    Channel *ch2 = new Channel("#chan2");
+    server->addChannel(ch1);
+    server->addChannel(ch2);
+    ch1->addMember(client1);
+    client1->addChannel(ch1);
+    ch2->addMember(client1);
+    client1->addChannel(ch2);
+
+    args.push_back("#chan1,#chan2");
+    partCmd->execute(client1, args);
+
+    EXPECT_FALSE(ch1->isMember(client1));
+    EXPECT_FALSE(ch2->isMember(client1));
+    EXPECT_TRUE(client1->getChannels().empty());
+}
+
+TEST_F(ChannelCommandsTest, Join_ZeroPartsAllChannels) {
+    // Setup: client1 joins #chan1 and #chan2
+    Channel *ch1 = new Channel("#chan1");
+    Channel *ch2 = new Channel("#chan2");
+    server->addChannel(ch1);
+    server->addChannel(ch2);
+    ch1->addMember(client1);
+    client1->addChannel(ch1);
+    ch2->addMember(client1);
+    client1->addChannel(ch2);
+
+    args.push_back("0");
+    joinCmd->execute(client1, args);
+
+    EXPECT_FALSE(ch1->isMember(client1));
+    EXPECT_FALSE(ch2->isMember(client1));
+    EXPECT_TRUE(client1->getChannels().empty());
+}
