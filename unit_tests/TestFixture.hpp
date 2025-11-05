@@ -11,6 +11,7 @@
 #include "PrivmsgCommand.hpp"
 #include "NoticeCommand.hpp"
 #include "NamesCommand.hpp"
+#include "TopicCommand.hpp"
 #include "Replies.hpp"
 #include "Server.hpp"
 #include "UserCommand.hpp"
@@ -75,6 +76,7 @@ class CommandTest : public ::testing::Test {
     PartCommand *partCmd;
     NoticeCommand *noticeCmd;
     NamesCommand *namesCmd;
+    TopicCommand *topicCmd;
 
     std::vector<std::string> args;
 
@@ -100,6 +102,7 @@ class CommandTest : public ::testing::Test {
         partCmd = new PartCommand(server);
         noticeCmd = new NoticeCommand(server);
         namesCmd = new NamesCommand(server);
+        topicCmd = new TopicCommand(server);
 
         // 5. 引数ベクタをクリア
         args.clear();
@@ -114,6 +117,7 @@ class CommandTest : public ::testing::Test {
         delete partCmd;
         delete noticeCmd;
         delete namesCmd;
+        delete topicCmd;
 
         // ClientはServerが所有権を持つため、Serverのデストラクタに任せる
         Server::resetInstance();

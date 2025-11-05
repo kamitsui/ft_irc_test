@@ -133,10 +133,33 @@ TEST_F(ChannelTest, Broadcast_ExcludeClient) {
 }
 
 TEST_F(ChannelTest, MemberManagement) {
+    // Clear members from SetUp
+    channel->removeMember(client1);
+    channel->removeMember(client2);
+    ASSERT_EQ(channel->getMembers().size(), 0);
+
+    client1->setNickname("User1");
+    client2->setNickname("User2");
+
+    channel->addMember(client1);
     ASSERT_TRUE(channel->isMember(client1));
+    ASSERT_EQ(channel->getMembers().size(), 1);
+
+    channel->addMember(client2);
     ASSERT_TRUE(channel->isMember(client2));
+    ASSERT_EQ(channel->getMembers().size(), 2);
 
     channel->removeMember(client1);
     ASSERT_FALSE(channel->isMember(client1));
-    ASSERT_TRUE(channel->isMember(client2));
+    ASSERT_EQ(channel->getMembers().size(), 1);
+}
+
+TEST_F(ChannelTest, TopicManagement) {
+    ASSERT_EQ(channel->getTopic(), ""); // Initial topic should be empty
+
+    channel->setTopic("This is a test topic.");
+    ASSERT_EQ(channel->getTopic(), "This is a test topic.");
+
+    channel->setTopic("A new topic.");
+    ASSERT_EQ(channel->getTopic(), "A new topic.");
 }
