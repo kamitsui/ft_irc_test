@@ -6,7 +6,7 @@
 #    By: kamitsui <kamitsui@student.42tokyo.jp>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/15 19:38:29 by kamitsui          #+#    #+#              #
-#    Updated: 2025/11/04 04:57:58 by kamitsui         ###   ########.fr        #
+#    Updated: 2025/11/05 13:09:25 by kamitsui         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ SRCS = \
       Replies.cpp \
       Server.cpp \
       UserCommand.cpp \
+      PingCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -42,6 +43,7 @@ SRCS = \
       UserCommandTest.cpp \
       ChannelTest.cpp \
       JoinPrivmsgPartTest.cpp \
+      PingCommand_test.cpp \
       \
       CommandManagerTest.cpp \
       \
@@ -90,7 +92,8 @@ $(OBJ_DIR)/%.o: %.cpp
 all: directories $(NAME)
 	@echo "Build" "'$(NAME)'" "Complete!"
 	$(call ASCII_ART,$(NAME))
-	$(call ASK_AND_EXECUTE_ON_YES, ./$(NAME))
+	./$(NAME)
+#	$(call ASK_AND_EXECUTE_ON_YES, ./$(NAME))
 .PHONY: all
 
 # Make Directories
