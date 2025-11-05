@@ -9,6 +9,7 @@
 #include "PartCommand.hpp"
 #include "PassCommand.hpp"
 #include "PrivmsgCommand.hpp"
+#include "NoticeCommand.hpp"
 #include "Replies.hpp"
 #include "Server.hpp"
 #include "UserCommand.hpp"
@@ -71,6 +72,7 @@ class CommandTest : public ::testing::Test {
     JoinCommand *joinCmd;
     PrivmsgCommand *privmsgCmd;
     PartCommand *partCmd;
+    NoticeCommand *noticeCmd;
 
     std::vector<std::string> args;
 
@@ -94,6 +96,7 @@ class CommandTest : public ::testing::Test {
         joinCmd = new JoinCommand(server);
         privmsgCmd = new PrivmsgCommand(server);
         partCmd = new PartCommand(server);
+        noticeCmd = new NoticeCommand(server);
 
         // 5. 引数ベクタをクリア
         args.clear();
@@ -106,6 +109,7 @@ class CommandTest : public ::testing::Test {
         delete joinCmd;
         delete privmsgCmd;
         delete partCmd;
+        delete noticeCmd;
 
         // ClientはServerが所有権を持つため、Serverのデストラクタに任せる
         Server::resetInstance();

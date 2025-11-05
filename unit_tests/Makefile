@@ -26,6 +26,7 @@ SRCS = \
       Channel.cpp \
       Client.cpp \
       CommandManager.cpp \
+      CommandUtils.cpp \
       JoinCommand.cpp \
       NickCommand.cpp \
       PartCommand.cpp \
@@ -37,6 +38,7 @@ SRCS = \
       UserCommand.cpp \
       PingCommand.cpp \
       PongCommand.cpp \
+      NoticeCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -45,6 +47,7 @@ SRCS = \
       ChannelTest.cpp \
       JoinPrivmsgPartTest.cpp \
       PingCommand_test.cpp \
+      NoticeCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
