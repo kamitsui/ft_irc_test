@@ -32,7 +32,7 @@ SRCS = \
       PartCommand.cpp \
       PassCommand.cpp \
       PrivmsgCommand.cpp \
-	  QuitCommand.cpp \
+      QuitCommand.cpp \
       Replies.cpp \
       Server.cpp \
       UserCommand.cpp \
