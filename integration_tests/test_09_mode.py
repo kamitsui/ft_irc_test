@@ -138,3 +138,67 @@ def test_mode_errors(clients_for_mode_test):
     error_reply = client_a.wait_for_command("472")
     assert error_reply is not None
     assert error_reply["args"] == ["userA", "z", "is unknown mode char to me for #test"]
+
+def test_mode_topic_protection(clients_for_mode_test):
+    """
+    Tests channel mode +t (topic protection).
+    - An operator should be able to set the topic.
+    - A non-operator should not be able to set the topic.
+    """
+    client_a, client_b, _ = clients_for_mode_test
+
+    # 1. Operator sets +t mode
+    client_a.send("MODE #test +t")
+    mode_broadcast = client_b.wait_for_command("MODE")
+    assert mode_broadcast is not None and mode_broadcast["args"] == ["#test", "+t"]
+
+    # 2. Non-operator (userB) fails to set topic
+    client_b.send("TOPIC #test :New topic by non-op")
+    error_reply = client_b.wait_for_command("482") # ERR_CHANOPRIVSNEEDED
+    assert error_reply is not None
+    assert error_reply["args"] == ["userB", "#test", "You're not an operator on this channel"]
+
+    # 3. Operator (userA) successfully sets topic
+    client_a.send("TOPIC #test :New topic by op")
+    topic_broadcast = client_b.wait_for_command("TOPIC")
+    assert topic_broadcast is not None
+    assert topic_broadcast["args"] == ["#test", "New topic by op"]
+
+    # 4. Operator unsets +t mode
+    client_a.send("MODE #test -t")
+    client_b.wait_for_command("MODE")
+
+    # 5. Non-operator (userB) can now set the topic
+    while client_a.get_message(timeout=0.1) is not None: pass # Clear buffer
+    client_b.send("TOPIC #test :Final topic by non-op")
+    topic_broadcast = client_a.wait_for_command("TOPIC")
+    assert topic_broadcast is not None
+    assert topic_broadcast["args"] == ["#test", "Final topic by non-op"]
+
+def test_mode_no_external_messages(clients_for_mode_test):
+    """
+    Tests channel mode +n (no external messages).
+    - A user not in the channel should not be able to send messages.
+    """
+    client_a, _, client_c = clients_for_mode_test
+
+    # 1. Operator sets +n mode
+    client_a.send("MODE #test +n")
+    client_a.wait_for_command("MODE") # Wait for self-broadcast
+
+    # 2. External user (userC) fails to send PRIVMSG
+    client_c.send("PRIVMSG #test :Hello from outside")
+    error_reply = client_c.wait_for_command("404") # ERR_CANNOTSENDTOCHAN
+    assert error_reply is not None
+    assert error_reply["args"] == ["userC", "#test", "Cannot send to channel"]
+
+    # 3. Operator unsets +n mode
+    client_a.send("MODE #test -n")
+    client_a.wait_for_command("MODE")
+
+    # 4. External user (userC) can now send PRIVMSG
+    client_c.send("PRIVMSG #test :Hello again from outside")
+    message_from_c = client_a.wait_for_command("PRIVMSG")
+    assert message_from_c is not None
+    assert message_from_c["prefix"]["nick"] == "userC"
+    assert message_from_c["args"] == ["#test", "Hello again from outside"]

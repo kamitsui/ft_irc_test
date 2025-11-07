@@ -111,10 +111,17 @@ class IRCClient:
             return None
 
         parts = line.split(' ')
-        prefix = None
+        prefix_dict = {}
 
         if parts[0].startswith(':'):
-            prefix = parts.pop(0)[1:]
+            prefix_str = parts.pop(0)[1:]
+            if '!' in prefix_str and '@' in prefix_str:
+                nick, rest = prefix_str.split('!', 1)
+                user, host = rest.split('@', 1)
+                prefix_dict = {"nick": nick, "user": user, "host": host, "raw": prefix_str}
+            else:
+                prefix_dict = {"server": prefix_str, "raw": prefix_str}
+
 
         command = parts.pop(0).upper()
 
@@ -131,4 +138,4 @@ class IRCClient:
         if trailing:
             args.append(trailing)
 
-        return {"prefix": prefix, "command": command, "args": args}
+        return {"prefix": prefix_dict, "command": command, "args": args}
