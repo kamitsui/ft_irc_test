@@ -125,3 +125,55 @@ TEST_F(ModeCommandTest, Mode_UnknownMode) {
         "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
+
+TEST_F(ModeCommandTest, Mode_SetTopicProtection) {
+    args.push_back("#test");
+    args.push_back("+t");
+    modeCmd->execute(client1, args);
+
+    EXPECT_TRUE(channel->hasMode('t'));
+    std::string expected_msg = ":UserA!user@client1.host MODE #test +t\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_msg);
+    EXPECT_EQ(client2->getLastMessage(), expected_msg);
+}
+
+TEST_F(ModeCommandTest, Mode_UnsetTopicProtection) {
+    channel->setMode('t', true); // Pre-set the mode
+    client1->receivedMessages.clear();
+    client2->receivedMessages.clear();
+
+    args.push_back("#test");
+    args.push_back("-t");
+    modeCmd->execute(client1, args);
+
+    EXPECT_FALSE(channel->hasMode('t'));
+    std::string expected_msg = ":UserA!user@client1.host MODE #test -t\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_msg);
+    EXPECT_EQ(client2->getLastMessage(), expected_msg);
+}
+
+TEST_F(ModeCommandTest, Mode_SetNoExternalMessages) {
+    args.push_back("#test");
+    args.push_back("+n");
+    modeCmd->execute(client1, args);
+
+    EXPECT_TRUE(channel->hasMode('n'));
+    std::string expected_msg = ":UserA!user@client1.host MODE #test +n\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_msg);
+    EXPECT_EQ(client2->getLastMessage(), expected_msg);
+}
+
+TEST_F(ModeCommandTest, Mode_UnsetNoExternalMessages) {
+    channel->setMode('n', true); // Pre-set the mode
+    client1->receivedMessages.clear();
+    client2->receivedMessages.clear();
+
+    args.push_back("#test");
+    args.push_back("-n");
+    modeCmd->execute(client1, args);
+
+    EXPECT_FALSE(channel->hasMode('n'));
+    std::string expected_msg = ":UserA!user@client1.host MODE #test -n\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_msg);
+    EXPECT_EQ(client2->getLastMessage(), expected_msg);
+}

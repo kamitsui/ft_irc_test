@@ -177,3 +177,33 @@ TEST_F(ChannelTest, OperatorManagement) {
     channel->removeOperator(client1);
     ASSERT_FALSE(channel->isOperator(client1));
 }
+
+TEST_F(ChannelTest, ModeManagement) {
+    // Initial modes
+    ASSERT_FALSE(channel->hasMode('t'));
+    ASSERT_FALSE(channel->hasMode('n'));
+    ASSERT_EQ(channel->getModes(), "+");
+
+    // Set mode +t
+    channel->setMode('t', true);
+    ASSERT_TRUE(channel->hasMode('t'));
+    ASSERT_FALSE(channel->hasMode('n'));
+    ASSERT_EQ(channel->getModes(), "+t");
+
+    // Set mode +n
+    channel->setMode('n', true);
+    ASSERT_TRUE(channel->hasMode('t'));
+    ASSERT_TRUE(channel->hasMode('n'));
+    ASSERT_EQ(channel->getModes(), "+nt");
+
+    // Unset mode +t
+    channel->setMode('t', false);
+    ASSERT_FALSE(channel->hasMode('t'));
+    ASSERT_TRUE(channel->hasMode('n'));
+    ASSERT_EQ(channel->getModes(), "+n");
+
+    // Try to set an unsupported mode
+    channel->setMode('x', true);
+    ASSERT_FALSE(channel->hasMode('x'));
+    ASSERT_EQ(channel->getModes(), "+n");
+}
