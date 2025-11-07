@@ -71,7 +71,13 @@ TEST_F(ModeCommandTest, Mode_NotAnOperator) {
 
     EXPECT_FALSE(channel->isOperator(client3));
     ASSERT_FALSE(client2->receivedMessages.empty());
-    EXPECT_NE(client2->getLastMessage().find(ERR_CHANOPRIVSNEEDED), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("#test");
+    std::string expected_reply = formatReply(server->getServerName(), client2->getNickname(),
+                                             ERR_CHANOPRIVSNEEDED, params) +
+                                 "\r\n";
+    EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }
 
 TEST_F(ModeCommandTest, Mode_TargetUserNotInChannel) {
@@ -82,15 +88,26 @@ TEST_F(ModeCommandTest, Mode_TargetUserNotInChannel) {
 
     EXPECT_FALSE(channel->isOperator(client3));
     ASSERT_FALSE(client1->receivedMessages.empty());
-    // Note: Some IRCds send ERR_USERNOTINCHANNEL (441), others ERR_NOSUCHNICK (401).
-    // Let's expect ERR_USERNOTINCHANNEL as it's more specific.
-    EXPECT_NE(client1->getLastMessage().find(ERR_USERNOTINCHANNEL), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("UserC");
+    params.push_back("#test");
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
+                                             ERR_USERNOTINCHANNEL, params) +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(ModeCommandTest, Mode_NeedMoreParams) {
     modeCmd->execute(client1, args);
     ASSERT_FALSE(client1->receivedMessages.empty());
-    EXPECT_NE(client1->getLastMessage().find(ERR_NEEDMOREPARAMS), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("MODE");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(ModeCommandTest, Mode_UnknownMode) {
@@ -100,5 +117,11 @@ TEST_F(ModeCommandTest, Mode_UnknownMode) {
     modeCmd->execute(client1, args);
 
     ASSERT_FALSE(client1->receivedMessages.empty());
-    EXPECT_NE(client1->getLastMessage().find(ERR_UNKNOWNMODE), std::string::npos);
+    std::vector<std::string> params;
+    params.push_back("x");
+    params.push_back("#test");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNMODE, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

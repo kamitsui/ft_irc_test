@@ -11,23 +11,32 @@ TEST_F(CommandTest, Nick_Success_BeforeUser) {
 TEST_F(CommandTest, Nick_Success_CompletesRegistration) {
     client1->setAuthenticated(true);
     client1->setUsername("user"); // USERは通過済み
+    //client1->setHostname("host");// ?
     args.push_back("NewNick");
     nickCmd->execute(client1, args);
 
     ASSERT_EQ(client1->getNickname(), "NewNick");
-    ASSERT_TRUE(client1->isRegistered()); // 登録完了
+    ASSERT_TRUE(client1->isRegistered());
 
-    // デバッグ出力 (これは残しても構いません)
-    // std::cout << "client1_recievedMessages: " << DebugVector<std::string>(client1->receivedMessages) << std::endl;
+    ASSERT_EQ(client1->receivedMessages.size(), 2);
 
-    // --- 修正箇所 ---
-    // メッセージが空でないことを確認
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    // 0番目のメッセージに RPL_WELCOME ("001") が含まれていることを確認
-    ASSERT_NE(client1->receivedMessages[0].find(RPL_WELCOME), std::string::npos);
+    // 001 RPL_WELCOME
+    std::vector<std::string> welcome_args;
+    welcome_args.push_back(client1->getNickname());
+    welcome_args.push_back(client1->getPrefix());
+    std::string expected_welcome =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_WELCOME, welcome_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[0], expected_welcome);
 
-    // (オプション) 最後のメッセージが RPL_YOURHOST ("002") であることも確認できます
-    ASSERT_NE(client1->getLastMessage().find(RPL_YOURHOST), std::string::npos);
+    // 002 RPL_YOURHOST
+    std::vector<std::string> yourhost_args;
+    yourhost_args.push_back(client1->getNickname());
+    yourhost_args.push_back(server->getServerName());
+    std::string expected_yourhost =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_YOURHOST, yourhost_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[1], expected_yourhost);
 }
 
 TEST_F(CommandTest, Nick_NotAuthenticated) {
@@ -39,16 +48,28 @@ TEST_F(CommandTest, Nick_NotAuthenticated) {
 TEST_F(CommandTest, Nick_NicknameInUse) {
     registerClient(client2, "TakenNick");
     client1->setAuthenticated(true);
+    client1->setNickname("user1");
 
     args.push_back("TakenNick");
     nickCmd->execute(client1, args);
     ASSERT_NE(client1->getNickname(), "TakenNick"); // ニックネームは変わらない
-    ASSERT_NE(client1->getLastMessage().find(ERR_NICKNAMEINUSE), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("TakenNick");
+    std::string expected_reply =
+        formatReply(server->getServerName(), "*", ERR_NICKNAMEINUSE, params) + "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(CommandTest, Nick_ErroneousNickname) {
     client1->setAuthenticated(true);
+    client1->setNickname("user1");
     args.push_back("1InvalidNick"); // 数字で始まる
     nickCmd->execute(client1, args);
-    ASSERT_NE(client1->getLastMessage().find(ERR_ERRONEUSNICKNAME), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("1InvalidNick");
+    std::string expected_reply =
+        formatReply(server->getServerName(), "user1", ERR_ERRONEUSNICKNAME, params) + "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

@@ -18,8 +18,39 @@ TEST_F(ChannelCommandsTest, Join_NewChannel) {
     Channel *ch = server->getChannel("#new");
     ASSERT_TRUE(ch != NULL);
     ASSERT_TRUE(ch->isMember(client1));
-    ASSERT_NE(client1->getLastMessage().find(RPL_ENDOFNAMES), std::string::npos);  // NAMESリストが返る
-    ASSERT_NE(client1->receivedMessages[0].find("JOIN :#new"), std::string::npos); // 自分へのJOIN通知
+
+    // 1. JOIN通知, 2. RPL_NOTOPIC, 3. RPL_NAMREPLY, 4. RPL_ENDOFNAMES の4つが届く
+    ASSERT_EQ(client1->receivedMessages.size(), 4);
+
+    // 1. JOIN通知
+    std::string expected_join_msg = client1->getPrefix() + " JOIN :#new\r\n";
+    EXPECT_EQ(client1->receivedMessages[0], expected_join_msg);
+
+    // 2. RPL_NOTOPIC (331)
+    std::vector<std::string> notopic_args;
+    notopic_args.push_back("#new");
+    std::string expected_notopic =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, notopic_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[1], expected_notopic);
+
+    // 3. RPL_NAMREPLY (353)
+    std::vector<std::string> namreply_args;
+    namreply_args.push_back("=");
+    namreply_args.push_back("#new");
+    namreply_args.push_back("@" + client1->getNickname()); // 最初のメンバーはオペレータ
+    std::string expected_namreply =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NAMREPLY, namreply_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[2], expected_namreply);
+
+    // 4. RPL_ENDOFNAMES (366)
+    std::vector<std::string> endofnames_args;
+    endofnames_args.push_back("#new");
+    std::string expected_endofnames = formatReply(server->getServerName(), client1->getNickname(),
+                                                  RPL_ENDOFNAMES, endofnames_args) +
+                                      "\r\n";
+    EXPECT_EQ(client1->receivedMessages[3], expected_endofnames);
 }
 
 TEST_F(ChannelCommandsTest, Join_ExistingChannel) {
@@ -32,7 +63,7 @@ TEST_F(ChannelCommandsTest, Join_ExistingChannel) {
     joinCmd->execute(client1, args);
 
     // client2 に client1 のJOINが通知される
-    ASSERT_NE(client2->getLastMessage().find(":User1!user@client1.host JOIN :#test"), std::string::npos);
+    EXPECT_EQ(client2->getLastMessage(), ":User1!user@client1.host JOIN :#test\r\n");
 }
 
 TEST_F(ChannelCommandsTest, Privmsg_ToChannel) {
@@ -70,13 +101,19 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel) {
     joinCmd->execute(client2, args);
 
     // client1 は参加していない
+    client1->receivedMessages.clear();
     args.clear();
     args.push_back("#test");
     args.push_back("Am I here?");
     privmsgCmd->execute(client1, args);
 
     // ERR_CANNOTSENDTOCHAN が返る
-    ASSERT_NE(client1->getLastMessage().find(ERR_CANNOTSENDTOCHAN), std::string::npos);
+    std::vector<std::string> params;
+    params.push_back("#test");
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
+                                             ERR_CANNOTSENDTOCHAN, params) +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(ChannelCommandsTest, Part_Success) {

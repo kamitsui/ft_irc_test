@@ -57,11 +57,13 @@ TEST_F(TopicCommandTest, Topic_ViewTopic) {
     args.push_back("#test");
     topicCmd->execute(client1, args);
 
-    // Expect RPL_TOPIC (332)
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    std::string topicReply = client1->getLastMessage();
-    EXPECT_NE(topicReply.find(RPL_TOPIC), std::string::npos);
-    EXPECT_NE(topicReply.find("#test :A readable topic."), std::string::npos);
+    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("#test");
+    params.push_back("A readable topic.");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_TOPIC, params) + "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(TopicCommandTest, Topic_NoTopicSet) {
@@ -69,39 +71,49 @@ TEST_F(TopicCommandTest, Topic_NoTopicSet) {
     args.push_back("#test");
     topicCmd->execute(client1, args);
 
-    // Expect RPL_NOTOPIC (331)
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    std::string noTopicReply = client1->getLastMessage();
-    EXPECT_NE(noTopicReply.find(RPL_NOTOPIC), std::string::npos);
-    EXPECT_NE(noTopicReply.find("#test :No topic is set"), std::string::npos);
+    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("#test");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, params) + "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(TopicCommandTest, Topic_NeedMoreParams) {
     topicCmd->execute(client1, args);
 
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    std::string errorReply = client1->getLastMessage();
-    EXPECT_NE(errorReply.find(ERR_NEEDMOREPARAMS), std::string::npos);
-    EXPECT_NE(errorReply.find("TOPIC"), std::string::npos);
+    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("TOPIC");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(TopicCommandTest, Topic_NotOnChannel) {
     // client2 is not on the channel
     args.push_back("#test");
-    args.push_back("A topic from an outsider.");
-    topicCmd->execute(client2, args);
+    topicCmd->execute(client2, args); // View topic attempt
 
-    ASSERT_FALSE(client2->receivedMessages.empty());
-    std::string errorReply = client2->getLastMessage();
-    EXPECT_NE(errorReply.find(ERR_NOTONCHANNEL), std::string::npos);
-    EXPECT_NE(errorReply.find("#test"), std::string::npos);
+    ASSERT_EQ(client2->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("#test");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client2->getNickname(), ERR_NOTONCHANNEL, params) +
+        "\r\n";
+    EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }
 
 TEST_F(TopicCommandTest, Topic_NoSuchChannel) {
     args.push_back("#nonexistent");
     topicCmd->execute(client1, args);
 
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    std::string errorReply = client1->getLastMessage();
-    EXPECT_NE(errorReply.find(ERR_NOSUCHCHANNEL), std::string::npos);
+    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("#nonexistent");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

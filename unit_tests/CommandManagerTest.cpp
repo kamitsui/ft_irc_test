@@ -24,9 +24,11 @@ TEST_F(CommandManagerTest, ExecuteUnknownCommand) {
     registerClient(client1, "client1_nick");
     cmdManager->parseAndExecute(client1, "UNKNOWNCMD some args");
 
-    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNCOMMAND,
-                                             "UNKNOWNCMD :Unknown command") +
-                                 "\r\n";
+    std::vector<std::string> args;
+    args.push_back("UNKNOWNCMD");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNCOMMAND, args) +
+        "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -47,8 +49,7 @@ TEST_F(CommandManagerTest, ExecuteCommandWithoutArgs) {
     cmdManager->parseAndExecute(client1, "NICK");
 
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN, ":No nickname given") +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN) + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -86,7 +87,7 @@ TEST_F(CommandManagerTest, RemoveClientCleansUpChannels) {
     registerClient(client2, "client2_nick");
 
     // 1. client1 と client2 を #test チャンネルに参加させる
-    Channel* channel = new Channel("#test");
+    Channel *channel = new Channel("#test");
     server->addChannel(channel);
     channel->addMember(client1);
     channel->addMember(client2);

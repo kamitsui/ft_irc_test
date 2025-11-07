@@ -96,6 +96,7 @@
 TEST_F(CommandTest, User_Success_CompletesRegistration) {
     client1->setAuthenticated(true);
     client1->setNickname("NewNick"); // NICKは通過済み
+    //client1->setHostname("host");
 
     args.push_back("user");
     args.push_back("0");
@@ -106,28 +107,40 @@ TEST_F(CommandTest, User_Success_CompletesRegistration) {
     ASSERT_EQ(client1->getUsername(), "user");
     ASSERT_TRUE(client1->isRegistered());
 
-    // --- 修正前 ---
-    // ASSERT_NE(client1->getLastMessage().find(RPL_WELCOME), std::string::npos);
+    ASSERT_EQ(client1->receivedMessages.size(), 2);
 
-    // デバッグ出力 (これは残しても構いません)
-    // std::cout << "client1_recievedMessages: " << DebugVector<std::string>(client1->receivedMessages) << std::endl;
+    // 001 RPL_WELCOME
+    std::vector<std::string> welcome_args;
+    welcome_args.push_back(client1->getNickname());
+    welcome_args.push_back(client1->getPrefix());
+    std::string expected_welcome =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_WELCOME, welcome_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[0], expected_welcome);
 
-    // --- 修正箇所 ---
-    // メッセージが空でないことを確認
-    ASSERT_FALSE(client1->receivedMessages.empty());
-    // 0番目のメッセージに RPL_WELCOME ("001") が含まれていることを確認
-    ASSERT_NE(client1->receivedMessages[0].find(RPL_WELCOME), std::string::npos);
-
-    // (オプション) 最後のメッセージが RPL_YOURHOST ("002") であることも確認できます
-    ASSERT_NE(client1->getLastMessage().find(RPL_YOURHOST), std::string::npos);
+    // 002 RPL_YOURHOST
+    std::vector<std::string> yourhost_args;
+    yourhost_args.push_back(client1->getNickname());
+    yourhost_args.push_back(server->getServerName());
+    std::string expected_yourhost =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_YOURHOST, yourhost_args) +
+        "\r\n";
+    EXPECT_EQ(client1->receivedMessages[1], expected_yourhost);
 }
 
 TEST_F(CommandTest, User_NeedMoreParams) {
     client1->setAuthenticated(true);
+    client1->setNickname("user1");
     args.push_back("user");
     userCmd->execute(client1, args); // 引数が足りない
     ASSERT_FALSE(client1->isRegistered());
-    ASSERT_NE(client1->getLastMessage().find(ERR_NEEDMOREPARAMS), std::string::npos);
+
+    std::vector<std::string> params;
+    params.push_back("USER");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(CommandTest, User_AlreadyRegistered) {
@@ -137,5 +150,9 @@ TEST_F(CommandTest, User_AlreadyRegistered) {
     args.push_back("*");
     args.push_back("Real Name");
     userCmd->execute(client1, args);
-    ASSERT_NE(client1->getLastMessage().find(ERR_ALREADYREGISTRED), std::string::npos);
+
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
+                                             ERR_ALREADYREGISTRED, std::vector<std::string>()) +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

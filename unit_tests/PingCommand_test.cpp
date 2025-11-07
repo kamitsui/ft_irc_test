@@ -34,6 +34,7 @@ TEST_F(CommandTest, PingCommandWithoutParametersReturnsError) {
 
     pingCmd.execute(client1, args);
 
-    std::string expected_error = formatReply(server->getServerName(), client1->getNickname(), ERR_NOORIGIN, ":No origin specified") + "\r\n";
+    std::string expected_error = ":" + server->getServerName() + " 409 " +
+                                 client1->getNickname() + " :No origin specified\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_error);
 }

@@ -33,7 +33,7 @@ def test_names_command_single_channel(irc_server):
     assert names_reply["args"][2] == "#test_chan"
     # Order of users might vary, so check for presence
     users_in_channel = names_reply["args"][3].split()
-    assert "user1" in users_in_channel
+    assert "@user1" in users_in_channel or "user1" in users_in_channel
     assert "user2" in users_in_channel
 
     assert end_names_reply is not None
@@ -84,7 +84,7 @@ def test_names_command_multiple_channels(irc_server):
     assert len(chan1_names) == 1
     assert len(chan1_end) == 1
     users_in_chan1 = chan1_names[0]["args"][3].split()
-    assert "user1" in users_in_chan1
+    assert "@user1" in users_in_chan1 or "user1" in users_in_chan1
     assert "user2" in users_in_chan1
 
     # Check for #chan2 replies
@@ -138,7 +138,7 @@ def test_names_command_no_parameters_lists_all_channels(irc_server):
     assert len(chanA_names) == 1
     assert len(chanA_end) == 1
     users_in_chanA = chanA_names[0]["args"][3].split()
-    assert "user1" in users_in_chanA
+    assert "@user1" in users_in_chanA or "user1" in users_in_chanA
     assert "user2" in users_in_chanA
 
     # Check for #chanB replies

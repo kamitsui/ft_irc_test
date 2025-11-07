@@ -11,18 +11,29 @@ TEST_F(CommandTest, Pass_IncorrectPassword) {
     args.push_back("wrong");
     passCmd->execute(client1, args);
     ASSERT_FALSE(client1->isAuthenticated());
-    ASSERT_NE(client1->getLastMessage().find(ERR_PASSWDMISMATCH), std::string::npos);
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
+                                             ERR_PASSWDMISMATCH, std::vector<std::string>()) +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(CommandTest, Pass_NoPassword) {
     passCmd->execute(client1, args);
     ASSERT_FALSE(client1->isAuthenticated());
-    ASSERT_NE(client1->getLastMessage().find(ERR_NEEDMOREPARAMS), std::string::npos);
+    std::vector<std::string> params;
+    params.push_back("PASS");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
+        "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
 TEST_F(CommandTest, Pass_AlreadyRegistered) {
     registerClient(client1, "user1");
     args.push_back("pass123");
     passCmd->execute(client1, args);
-    ASSERT_NE(client1->getLastMessage().find(ERR_ALREADYREGISTRED), std::string::npos);
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
+                                             ERR_ALREADYREGISTRED, std::vector<std::string>()) +
+                                 "\r\n";
+    EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
