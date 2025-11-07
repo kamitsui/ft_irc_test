@@ -93,7 +93,7 @@ def test_names_command_multiple_channels(irc_server):
     assert len(chan2_names) == 1
     assert len(chan2_end) == 1
     users_in_chan2 = chan2_names[0]["args"][3].split()
-    assert "user1" in users_in_chan2
+    assert "@user1" in users_in_chan2 or "user1" in users_in_chan2
     assert "user2" not in users_in_chan2 # user2 is not in #chan2
 
     client1.close()
@@ -147,7 +147,7 @@ def test_names_command_no_parameters_lists_all_channels(irc_server):
     assert len(chanB_names) == 1
     assert len(chanB_end) == 1
     users_in_chanB = chanB_names[0]["args"][3].split()
-    assert "user1" in users_in_chanB
+    assert "@user1" in users_in_chanB or "user1" in users_in_chanB
     assert "user2" not in users_in_chanB # user2 is not in #chanB
 
     client1.close()

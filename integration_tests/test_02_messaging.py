@@ -39,8 +39,7 @@ def test_join_and_names(registered_clients):
     end_names_msg = client1.wait_for_command("366") # RPL_ENDOFNAMES
 
     assert names_msg is not None, "RPL_NAMREPLY (353) が受信できませんでした"
-    assert names_msg["args"] == ["UserA", "=", "#test", "UserA"]
-
+    assert names_msg["args"] == ["UserA", "=", "#test", "@UserA"]
     assert end_names_msg is not None, "RPL_ENDOFNAMES (366) が受信できませんでした"
     # RFC1459では以下の定義だが、RFC2812に合わせる。
     # ```
