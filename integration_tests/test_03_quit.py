@@ -75,7 +75,7 @@ def test_quit_notifies_other_channel_members(irc_server):
     quit_notification = client_receiver.wait_for_command("QUIT", timeout=5.0)
 
     assert quit_notification is not None, "ReceiverがQUIT通知を受信しませんでした"
-    assert quit_notification["prefix"] == f"Quitter!Quitter@127.0.0.1"
+    assert quit_notification["prefix"]["raw"] == f"Quitter!Quitter@127.0.0.1"
     assert quit_notification["command"] == "QUIT"
     assert quit_notification["args"] == [quit_message]
 

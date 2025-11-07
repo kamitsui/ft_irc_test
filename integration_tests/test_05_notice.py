@@ -17,7 +17,7 @@ def test_notice_to_user(irc_server):
     
     msg = client2.wait_for_command("NOTICE")
     assert msg is not None
-    assert msg["prefix"].startswith("sender!")
+    assert msg["prefix"]["nick"] == "sender"
     assert msg["args"] == ["receiver", "Hello, this is a notice."]
 
     client1.close()
@@ -47,7 +47,7 @@ def test_notice_to_channel(irc_server):
 
     msg = client2.wait_for_command("NOTICE")
     assert msg is not None
-    assert msg["prefix"].startswith("sender!")
+    assert msg["prefix"]["nick"] == "sender"
     assert msg["args"] == ["#test", "This is a channel notice."]
 
     # Sender should not receive their own notice

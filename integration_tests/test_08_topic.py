@@ -52,7 +52,7 @@ def test_topic_set_and_view(clients_in_channel):
     # Client2 should receive the broadcast
     broadcast = client2.wait_for_command("TOPIC")
     assert broadcast is not None
-    assert broadcast["prefix"].startswith("userA!")
+    assert broadcast["prefix"]["nick"] == "userA"
     assert broadcast["args"] == ["#test", "This is a cool topic!"]
 
     # Client1 now views the topic

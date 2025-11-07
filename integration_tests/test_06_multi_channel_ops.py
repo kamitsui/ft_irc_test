@@ -56,8 +56,8 @@ def test_part_multiple_channels(irc_server):
 
     assert part1 is not None and part1["args"][0] == "#chan1"
     assert part2 is not None and part2["args"][0] == "#chan2"
-    assert part1["prefix"].startswith("m_parter!")
-    assert part2["prefix"].startswith("m_parter!")
+    assert part1["prefix"]["nick"] == "m_parter"
+    assert part2["prefix"]["nick"] == "m_parter"
 
     client1.close()
     client2.close()

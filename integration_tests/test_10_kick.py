@@ -36,6 +36,13 @@ def clients_for_kick_test(irc_server):
     for client in clients.values():
         while client.get_message(timeout=0.1) is not None: pass
 
+    # Set +n mode on the channel for testing post-kick behavior
+    clients["operator"].send("MODE #test +n")
+    # Wait for confirmation on all clients inside the channel
+    clients["operator"].wait_for_command("MODE")
+    clients["member"].wait_for_command("MODE")
+    clients["target"].wait_for_command("MODE")
+
     yield clients
 
     for client in clients.values():

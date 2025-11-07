@@ -70,7 +70,8 @@ def test_join_notification_and_privmsg(registered_clients):
     # Client1 は Client2 のJOIN通知を受信するはず
     join_notification = client1.wait_for_command("JOIN")
     assert join_notification is not None, "Client1がClient2のJOIN通知を受信できませんでした"
-    assert join_notification["prefix"].startswith("UserB!UserB@")
+    assert join_notification["prefix"]["nick"] == "UserB"
+    assert join_notification["prefix"]["user"] == "UserB"
     assert join_notification["args"] == ["#test"]
 
     # Client1 がメッセージを送信
@@ -79,6 +80,7 @@ def test_join_notification_and_privmsg(registered_clients):
     # Client2 がメッセージを受信
     privmsg = client2.wait_for_command("PRIVMSG")
     assert privmsg is not None, "Client2がPRIVMSGを受信できませんでした"
-    assert privmsg["prefix"].startswith("UserA!UserA@")
+    assert privmsg["prefix"]["nick"] == "UserA"
+    assert privmsg["prefix"]["user"] == "UserA"
     assert privmsg["args"] == ["#test", "Hello UserB!"]
 
