@@ -54,6 +54,7 @@ SRCS = \
       NamesCommandTest.cpp \
       TopicCommandTest.cpp \
       ModeCommandTest.cpp \
+      KickCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
