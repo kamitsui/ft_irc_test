@@ -15,6 +15,7 @@ class TopicCommandTest : public CommandTest {
         channel = new Channel("#test");
         server->addChannel(channel);
         channel->addMember(client1);
+        channel->addOperator(client1); // Make client1 an operator for topic tests
         client1->addChannel(channel);
         client1->receivedMessages.clear();
     }
@@ -116,4 +117,40 @@ TEST_F(TopicCommandTest, Topic_NoSuchChannel) {
         formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params) +
         "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
+}
+
+TEST_F(TopicCommandTest, Topic_SetTopic_WithTopicProtection_AsOperator) {
+    channel->setMode('t', true); // Enable topic protection
+    client1->receivedMessages.clear();
+
+    args.push_back("#test");
+    args.push_back("Operator can change topic.");
+    topicCmd->execute(client1, args); // client1 is operator
+
+    EXPECT_EQ(channel->getTopic(), "Operator can change topic.");
+    std::string topicMsg = client1->getLastMessage();
+    EXPECT_NE(topicMsg.find("TOPIC #test :Operator can change topic."), std::string::npos);
+}
+
+TEST_F(TopicCommandTest, Topic_SetTopic_WithTopicProtection_AsNonOperator) {
+    channel->setMode('t', true); // Enable topic protection
+    channel->addMember(client2); // Add client2 to channel
+    client2->addChannel(channel);
+    client2->receivedMessages.clear();
+
+    args.push_back("#test");
+    args.push_back("Non-operator cannot change topic.");
+    topicCmd->execute(client2, args); // client2 is NOT operator
+
+    // Topic should not change
+    EXPECT_EQ(channel->getTopic(), ""); // Assuming initial topic is empty
+
+    // Non-operator should receive ERR_CHANOPRIVSNEEDED
+    ASSERT_EQ(client2->receivedMessages.size(), 1);
+    std::vector<std::string> params;
+    params.push_back("#test");
+    std::string expected_reply =
+        formatReply(server->getServerName(), client2->getNickname(), ERR_CHANOPRIVSNEEDED, params) +
+        "\r\n";
+    EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }

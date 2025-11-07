@@ -106,6 +106,31 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel) {
     args.push_back("Am I here?");
     privmsgCmd->execute(client1, args);
 
+    // +n モードがデフォルトで設定されていないため、メッセージは送信されるはず
+    // (CommandUtils.cpp の変更により、+n がない場合は外部メッセージを許可するようになった)
+    ASSERT_EQ(client2->getLastMessage(), ":User1!user@client1.host PRIVMSG #test :Am I here?\r\n");
+    ASSERT_TRUE(client1->receivedMessages.empty()); // 送信者には返信なし
+}
+
+TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel_WithNoExternalMessagesMode) {
+    // #test を作成 (client2のみ参加)
+    args.push_back("#test");
+    joinCmd->execute(client2, args);
+    
+    // client2 (オペレーター) が +n モードを設定
+    args.clear();
+    args.push_back("#test");
+    args.push_back("+n");
+    modeCmd->execute(client2, args);
+    client2->receivedMessages.clear(); // Clear mode broadcast message
+
+    // client1 は参加していない
+    client1->receivedMessages.clear();
+    args.clear();
+    args.push_back("#test");
+    args.push_back("Am I here?");
+    privmsgCmd->execute(client1, args);
+
     // ERR_CANNOTSENDTOCHAN が返る
     std::vector<std::string> params;
     params.push_back("#test");
@@ -113,6 +138,7 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel) {
                                              ERR_CANNOTSENDTOCHAN, params) +
                                  "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
+    ASSERT_TRUE(client2->receivedMessages.empty()); // client2にはメッセージが届かない
 }
 
 TEST_F(ChannelCommandsTest, Part_Success) {
