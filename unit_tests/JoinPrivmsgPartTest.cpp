@@ -36,7 +36,6 @@ TEST_F(ChannelCommandsTest, Join_NewChannel) {
 
     // 3. RPL_NAMREPLY (353)
     std::vector<std::string> namreply_args;
-    namreply_args.push_back("=");
     namreply_args.push_back("#new");
     namreply_args.push_back("@" + client1->getNickname()); // 最初のメンバーはオペレータ
     std::string expected_namreply =
