@@ -13,6 +13,7 @@
 #include "NamesCommand.hpp"
 #include "TopicCommand.hpp"
 #include "ModeCommand.hpp"
+#include "KickCommand.hpp"
 #include "Replies.hpp"
 #include "Server.hpp"
 #include "UserCommand.hpp"
@@ -79,6 +80,7 @@ class CommandTest : public ::testing::Test {
     NamesCommand *namesCmd;
     TopicCommand *topicCmd;
     ModeCommand *modeCmd;
+    KickCommand *kickCmd;
 
     std::vector<std::string> args;
 
@@ -106,6 +108,7 @@ class CommandTest : public ::testing::Test {
         namesCmd = new NamesCommand(server);
         topicCmd = new TopicCommand(server);
         modeCmd = new ModeCommand(server);
+        kickCmd = new KickCommand(server);
 
         // 5. 引数ベクタをクリア
         args.clear();
@@ -122,6 +125,7 @@ class CommandTest : public ::testing::Test {
         delete namesCmd;
         delete topicCmd;
         delete modeCmd;
+        delete kickCmd;
 
         // ClientはServerが所有権を持つため、Serverのデストラクタに任せる
         Server::resetInstance();

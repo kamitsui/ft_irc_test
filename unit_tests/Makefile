@@ -42,6 +42,7 @@ SRCS = \
       NamesCommand.cpp \
       TopicCommand.cpp \
       ModeCommand.cpp \
+      KickCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
