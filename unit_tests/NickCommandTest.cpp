@@ -70,6 +70,6 @@ TEST_F(CommandTest, Nick_ErroneousNickname) {
     std::vector<std::string> params;
     params.push_back("1InvalidNick");
     std::string expected_reply =
-        formatReply(server->getServerName(), "user1", ERR_ERRONEUSNICKNAME, params) + "\r\n";
+        formatReply(server->getServerName(), "*", ERR_ERRONEUSNICKNAME, params) + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
