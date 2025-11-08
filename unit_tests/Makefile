@@ -44,6 +44,7 @@ SRCS = \
       ModeCommand.cpp \
       KickCommand.cpp \
       ListCommand.cpp \
+      WhoCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -58,6 +59,7 @@ SRCS = \
       ModeCommandTest.cpp \
       KickCommandTest.cpp \
       ListCommandTest.cpp \
+      WhoCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
