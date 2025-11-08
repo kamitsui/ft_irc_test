@@ -45,6 +45,7 @@ SRCS = \
       KickCommand.cpp \
       ListCommand.cpp \
       WhoCommand.cpp \
+      WhoisCommand.cpp \
       \
       ClientTest.cpp \
       PassCommandTest.cpp \
@@ -60,6 +61,7 @@ SRCS = \
       KickCommandTest.cpp \
       ListCommandTest.cpp \
       WhoCommandTest.cpp \
+      WhoisCommandTest.cpp \
       \
       CommandManagerTest.cpp \
       \
