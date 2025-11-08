@@ -202,3 +202,110 @@ def test_mode_no_external_messages(clients_for_mode_test):
     assert message_from_c is not None
     assert message_from_c["prefix"]["nick"] == "userC"
     assert message_from_c["args"] == ["#test", "Hello again from outside"]
+
+def test_mode_channel_key(clients_for_mode_test):
+    """
+    Tests channel mode +k (channel key/password).
+    - Operator sets a key.
+    - Non-operator cannot join without the key.
+    - Non-operator can join with the correct key.
+    - Operator unsets the key.
+    - Non-operator can join without a key.
+    """
+    client_a, _, client_c = clients_for_mode_test
+
+    # 1. Operator sets +k mode with a key
+    client_a.send("MODE #test +k mysecret")
+    client_a.wait_for_command("MODE")
+
+    # 2. External user (userC) fails to join without key
+    client_c.send("JOIN #test")
+    error_reply = client_c.wait_for_command("475") # ERR_BADCHANNELKEY
+    assert error_reply is not None
+    assert error_reply["args"] == ["userC", "#test", "Cannot join channel (+k)"]
+
+    # 3. External user (userC) fails to join with incorrect key
+    client_c.send("JOIN #test wrongkey")
+    error_reply = client_c.wait_for_command("475") # ERR_BADCHANNELKEY
+    assert error_reply is not None
+
+    # 4. External user (userC) successfully joins with correct key
+    client_c.send("JOIN #test mysecret")
+    join_reply = client_c.wait_for_command("JOIN")
+    assert join_reply is not None
+    assert join_reply["args"] == ["#test"]
+    client_c.wait_for_command("366") # End of NAMES
+
+    # 5. Operator unsets +k mode
+    client_a.send("MODE #test -k mysecret")
+    client_a.wait_for_command("MODE")
+
+    # 6. userC parts the channel to test re-joining
+    client_c.send("PART #test")
+    client_c.wait_for_command("PART")
+
+    # 7. External user (userC) can now join without a key
+    client_c.send("JOIN #test")
+    join_reply = client_c.wait_for_command("JOIN")
+    assert join_reply is not None
+    assert join_reply["args"] == ["#test"]
+
+def test_mode_user_limit(clients_for_mode_test):
+    """
+    Tests channel mode +l (user limit).
+    - Operator sets a limit.
+    - Additional users cannot join if limit is reached.
+    - Operator unsets the limit.
+    - Additional users can join.
+    """
+    client_a, client_b, client_c = clients_for_mode_test
+
+    # 1. Operator sets +l mode with a limit of 2 (userA and userB are already in)
+    client_a.send("MODE #test +l 2")
+    client_a.wait_for_command("MODE")
+
+    # 2. External user (userC) fails to join because limit is reached
+    client_c.send("JOIN #test")
+    error_reply = client_c.wait_for_command("471") # ERR_CHANNELISFULL
+    assert error_reply is not None
+    assert error_reply["args"] == ["userC", "#test", "Cannot join channel (+l)"]
+
+    # 3. Operator unsets +l mode
+    client_a.send("MODE #test -l")
+    client_a.wait_for_command("MODE")
+
+    # 4. External user (userC) can now join
+    client_c.send("JOIN #test")
+    join_reply = client_c.wait_for_command("JOIN")
+    assert join_reply is not None
+    assert join_reply["args"] == ["#test"]
+
+def test_mode_invite_only(clients_for_mode_test):
+    """
+    Tests channel mode +i (invite-only).
+    - Operator sets invite-only mode.
+    - Non-invited user cannot join.
+    - Invited user can join.
+    """
+    client_a, _, client_c = clients_for_mode_test
+
+    # 1. Operator sets +i mode
+    client_a.send("MODE #test +i")
+    client_a.wait_for_command("MODE")
+
+    # 2. External user (userC) fails to join (not invited)
+    client_c.send("JOIN #test")
+    error_reply = client_c.wait_for_command("473") # ERR_INVITEONLYCHAN
+    assert error_reply is not None
+    assert error_reply["args"] == ["userC", "#test", "Cannot join channel (+i)"]
+
+    # 3. Operator invites userC
+    client_a.send("INVITE userC #test")
+    invite_msg = client_c.wait_for_command("INVITE")
+    assert invite_msg is not None
+
+    # 4. Invited user (userC) can now join
+    client_c.send("JOIN #test")
+    join_reply = client_c.wait_for_command("JOIN")
+    assert join_reply is not None
+    assert join_reply["args"] == ["#test"]

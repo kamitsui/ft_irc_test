@@ -207,3 +207,27 @@ TEST_F(ChannelTest, ModeManagement) {
     ASSERT_FALSE(channel->hasMode('x'));
     ASSERT_EQ(channel->getModes(), "+n");
 }
+
+TEST_F(ChannelTest, KeyManagement) {
+    ASSERT_EQ(channel->getKey(), "");
+    channel->setKey("testkey");
+    ASSERT_EQ(channel->getKey(), "testkey");
+    ASSERT_TRUE(channel->checkKey("testkey"));
+    ASSERT_FALSE(channel->checkKey("wrongkey"));
+}
+
+TEST_F(ChannelTest, LimitManagement) {
+    ASSERT_EQ(channel->getLimit(), 0);
+    channel->setLimit(5);
+    ASSERT_EQ(channel->getLimit(), 5);
+}
+
+TEST_F(ChannelTest, InvitedUserManagement) {
+    ASSERT_FALSE(channel->isInvitedUser(client1));
+    channel->addInvitedUser(client1);
+    ASSERT_TRUE(channel->isInvitedUser(client1));
+    ASSERT_FALSE(channel->isInvitedUser(client2));
+
+    channel->removeInvitedUser(client1);
+    ASSERT_FALSE(channel->isInvitedUser(client1));
+}
