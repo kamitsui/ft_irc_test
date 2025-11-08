@@ -1,6 +1,6 @@
-#include "TestFixture.hpp"
 #include "NoticeCommand.hpp"
 #include "Channel.hpp"
+#include "TestFixture.hpp"
 
 class NoticeCommandTest : public CommandTest {};
 
@@ -12,7 +12,7 @@ TEST_F(NoticeCommandTest, NoticeToUser) {
     args.push_back("Hello there!");
     noticeCmd->execute(client1, args);
 
-    std::string expected_msg = client1->getPrefix() + " NOTICE receiver :Hello there!\r\n";
+    std::string expected_msg = std::string(client1->getPrefix() + " NOTICE receiver :Hello there!") + "\r\n";
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
 
@@ -20,7 +20,7 @@ TEST_F(NoticeCommandTest, NoticeToChannel) {
     registerClient(client1, "sender");
     registerClient(client2, "receiver");
 
-    Channel* channel = new Channel("#test");
+    Channel *channel = new Channel("#test");
     server->addChannel(channel);
     channel->addMember(client1);
     channel->addMember(client2);
@@ -29,7 +29,7 @@ TEST_F(NoticeCommandTest, NoticeToChannel) {
     args.push_back("Channel notice");
     noticeCmd->execute(client1, args);
 
-    std::string expected_msg = client1->getPrefix() + " NOTICE #test :Channel notice\r\n";
+    std::string expected_msg = std::string(client1->getPrefix() + " NOTICE #test :Channel notice") + "\r\n";
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
     // 送信者自身には送られない
     EXPECT_NE(client1->getLastMessage(), expected_msg);

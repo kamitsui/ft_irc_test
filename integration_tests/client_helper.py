@@ -51,19 +51,27 @@ class IRCClient:
         """
         バッファから1行 (CRLF区切り) のIRCメッセージを取得する。
         メッセージがなければNoneを返す。
+        PINGメッセージは自動的に処理される。
         """
-        # バッファに改行が含まれているか確認
-        while "\r\n" not in self.buffer:
-            raw_data = self._recv_raw(timeout)
-            if raw_data is None: # タイムアウト
-                return None
-            if raw_data == "": # 接続切断
-                return None
-            self.buffer += raw_data
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            # バッファに改行が含まれているか確認
+            if "\r\n" not in self.buffer:
+                raw_data = self._recv_raw(timeout - (time.time() - start_time))
+                if raw_data is None: # タイムアウト
+                    return None
+                if raw_data == "": # 接続切断
+                    return None
+                self.buffer += raw_data
 
-        # 最初のメッセージを切り出す
-        line, self.buffer = self.buffer.split("\r\n", 1)
-        return self.parse_message(line)
+            if "\r\n" in self.buffer:
+                line, self.buffer = self.buffer.split("\r\n", 1)
+                msg = self.parse_message(line)
+                if msg and msg["command"] == "PING":
+                    self._handle_ping(msg)
+                    # continueではなく、PINGメッセージをテストロジックに返す
+                return msg
+        return None
 
     def wait_for_command(self, expected_command, timeout=2.0):
         """
@@ -78,6 +86,16 @@ class IRCClient:
         print(f"[{self.nick}] Timeout: Did not receive command '{expected_command}'")
         return None
 
+    def _handle_ping(self, ping_msg):
+        """
+        PINGメッセージに応答する。
+        """
+        if "args" in ping_msg and ping_msg["args"]:
+            token = ping_msg["args"][0]
+            self.send(f"PONG :{token}")
+        else:
+            self.send("PONG :irc.myserver.com") # デフォルトのサーバー名
+
     def register(self, password, user_real_name="Test User"):
         """クライアント登録を自動で行う"""
         self.send(f"PASS {password}")
@@ -88,7 +106,11 @@ class IRCClient:
         welcome_msg = self.wait_for_command("001")
         assert welcome_msg is not None, f"[{self.nick}] 登録失敗: RPL_WELCOME (001) が受信できませんでした"
 
-        # 001以降の応答を読み飛ばす (002, 003, 004など)
+        # 002 (RPL_YOURHOST) も待つ
+        yourhost_msg = self.wait_for_command("002")
+        assert yourhost_msg is not None, f"[{self.nick}] 登録失敗: RPL_YOURHOST (002) が受信できませんでした"
+
+        # 001, 002以降の応答を読み飛ばす (003, 004など)
         while self.get_message(timeout=0.1) is not None:
             pass
 

@@ -10,7 +10,7 @@ TEST_F(CommandTest, PingCommandRespondsWithPong) {
 
     pingCmd.execute(client1, args);
 
-    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com\r\n";
+    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com" + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_pong);
 }
 
@@ -23,7 +23,7 @@ TEST_F(CommandTest, PingCommandWithMultipleParametersRespondsWithFirstParameter)
 
     pingCmd.execute(client1, args);
 
-    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com\r\n";
+    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com" + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_pong);
 }
 

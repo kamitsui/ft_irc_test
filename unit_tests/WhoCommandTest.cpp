@@ -43,7 +43,6 @@ TEST_F(WhoCommandTest, Who_ChannelMembers) {
 
     ASSERT_EQ(client1->receivedMessages.size(), 3); // 2 RPL_WHOREPLY + 1 RPL_ENDOFWHO
 
-    // Check RPL_WHOREPLY for UserA (operator)
     std::string expected_reply_a_str;
     {
         std::vector<std::string> params;
@@ -55,11 +54,10 @@ TEST_F(WhoCommandTest, Who_ChannelMembers) {
         params.push_back("H@");
         params.push_back("0");
         params.push_back("UserA");
-        expected_reply_a_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_a_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[0], expected_reply_a_str);
 
-    // Check RPL_WHOREPLY for UserB (regular member)
     std::string expected_reply_b_str;
     {
         std::vector<std::string> params;
@@ -71,7 +69,7 @@ TEST_F(WhoCommandTest, Who_ChannelMembers) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserB");
-        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[1], expected_reply_b_str);
 
@@ -80,7 +78,7 @@ TEST_F(WhoCommandTest, Who_ChannelMembers) {
     {
         std::vector<std::string> params;
         params.push_back("#test");
-        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params) + "\r\n";
+        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params);
     }
     EXPECT_EQ(client1->receivedMessages[2], expected_end_reply_str);}
 
@@ -102,7 +100,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserInChannel) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserB");
-        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[0], expected_reply_b_str);
 
@@ -111,7 +109,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserInChannel) {
     {
         std::vector<std::string> params;
         params.push_back("UserB");
-        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params) + "\r\n";
+        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params);
     }
     EXPECT_EQ(client1->receivedMessages[1], expected_end_reply_str);
 }
@@ -135,7 +133,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserNotInChannelButOnServer) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserC");
-        expected_reply_c_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_c_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[0], expected_reply_c_str);
 
@@ -144,7 +142,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserNotInChannelButOnServer) {
     {
         std::vector<std::string> params;
         params.push_back("UserC");
-        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params) + "\r\n";
+        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params);
     }
     EXPECT_EQ(client1->receivedMessages[1], expected_end_reply_str);
 }
@@ -159,7 +157,7 @@ TEST_F(WhoCommandTest, Who_NonExistentTarget) {
     {
         std::vector<std::string> params;
         params.push_back("NonExistentUser");
-        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params) + "\r\n";
+        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params);
     }
     EXPECT_EQ(client1->receivedMessages[0], expected_end_reply_str);
 }
@@ -191,7 +189,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
         params.push_back("H@");
         params.push_back("0");
         params.push_back("UserA");
-        expected_reply_a_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_a_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[0], expected_reply_a_str);
 
@@ -206,7 +204,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserB");
-        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_b_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[1], expected_reply_b_str);
 
@@ -221,7 +219,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserC");
-        expected_reply_c_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_c_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[2], expected_reply_c_str);
 
@@ -236,7 +234,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
         params.push_back("H");
         params.push_back("0");
         params.push_back("UserD");
-        expected_reply_d_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params) + "\r\n";
+        expected_reply_d_str = formatReply(server->getServerName(), client1->getNickname(), RPL_WHOREPLY, params);
     }
     EXPECT_EQ(client1->receivedMessages[3], expected_reply_d_str);
 
@@ -244,7 +242,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
     {
         std::vector<std::string> params;
         params.push_back(client1->getNickname());
-        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params) + "\r\n";
+        expected_end_reply_str = formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFWHO, params);
     }
     EXPECT_EQ(client1->receivedMessages[4], expected_end_reply_str);
 }

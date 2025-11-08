@@ -89,7 +89,7 @@ TEST_F(WhoisCommandTest, Whois_NoSuchNick) {
     std::vector<std::string> params;
     params.push_back("NonExistentUser");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHNICK, params) + "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHNICK, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -99,6 +99,6 @@ TEST_F(WhoisCommandTest, Whois_NoNicknameGiven) {
 
     ASSERT_EQ(client1->receivedMessages.size(), 1);
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN, std::vector<std::string>()) + "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN, std::vector<std::string>());
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

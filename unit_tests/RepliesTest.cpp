@@ -6,111 +6,137 @@ std::string get_full_prefix(const std::string& nickname, const std::string& user
     return ":" + nickname + "!" + username + "@" + hostname;
 }
 
-TEST(RepliesTest, RPL_WELCOME) {
+TEST(RepliesTest, WelcomeReply) {
+    std::string server_name = "ft_irc";
     std::string nickname = "testnick";
     std::string username = "testuser";
     std::string hostname = "testhost";
-    std::string expected = ":" + hostname + " 001 " + nickname + " :Welcome to the ft_irc Network, " + nickname + "!" + username + "@" + hostname + "\r\n";
-    EXPECT_EQ(Replies::welcome(nickname, username, hostname), expected);
+    std::string client_prefix = ":" + nickname + "!" + username + "@" + hostname;
+    std::string expected = ":" + server_name + " 001 " + nickname + " :Welcome to the Internet Relay Network " + client_prefix + "\r\n";
+    EXPECT_EQ(formatReply(server_name, nickname, RPL_WELCOME, {client_prefix}), expected);
 }
 
-TEST(RepliesTest, ERR_NOSUCHNICK) {
+TEST(RepliesTest, ErrNoSuchNickReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "sender";
     std::string target_nick = "nonexistent";
-    std::string expected = ":ft_irc 401 " + client_nick + " " + target_nick + " :No such nick/channel\r\n";
-    EXPECT_EQ(Replies::errNoSuchNick(client_nick, target_nick), expected);
+    std::string expected = ":" + server_name + " 401 " + client_nick + " " + target_nick + " :No such nick/channel\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NOSUCHNICK, {target_nick}), expected);
 }
 
-TEST(RepliesTest, ERR_NEEDMOREPARAMS) {
+TEST(RepliesTest, ErrNeedMoreParamsReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string command = "JOIN";
-    std::string expected = ":ft_irc 461 " + client_nick + " " + command + " :Not enough parameters\r\n";
-    EXPECT_EQ(Replies::errNeedMoreParams(client_nick, command), expected);
+    std::string expected = ":" + server_name + " 461 " + client_nick + " " + command + " :Not enough parameters\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NEEDMOREPARAMS, {command}), expected);
 }
 
-TEST(RepliesTest, ERR_PASSWDMISMATCH) {
+TEST(RepliesTest, ErrPasswdMismatchReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
-    std::string expected = ":ft_irc 464 " + client_nick + " :Password incorrect\r\n";
-    EXPECT_EQ(Replies::errPasswdMismatch(client_nick), expected);
+    std::string expected = ":" + server_name + " 464 " + client_nick + " :Password incorrect\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_PASSWDMISMATCH, {}), expected);
 }
 
-TEST(RepliesTest, ERR_NICKNAMEINUSE) {
+TEST(RepliesTest, ErrNicknameInUseReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string used_nick = "usednick";
-    std::string expected = ":ft_irc 433 " + client_nick + " " + used_nick + " :Nickname is already in use\r\n";
-    EXPECT_EQ(Replies::errNicknameInUse(client_nick, used_nick), expected);
+    std::string expected = ":" + server_name + " 433 " + client_nick + " " + used_nick + " :Nickname is already in use\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NICKNAMEINUSE, {used_nick}), expected);
 }
 
-TEST(RepliesTest, ERR_ALREADYREGISTRED) {
+TEST(RepliesTest, ErrAlreadyRegistredReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
-    std::string expected = ":ft_irc 462 " + client_nick + " :You may not reregister\r\n";
-    EXPECT_EQ(Replies::errAlreadyRegistred(client_nick), expected);
+    std::string expected = ":" + server_name + " 462 " + client_nick + " :Unauthorized command (already registered)\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_ALREADYREGISTRED, {}), expected);
 }
 
-TEST(RepliesTest, ERR_UNKNOWNCOMMAND) {
+TEST(RepliesTest, ErrUnknownCommandReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string command = "UNKNOWN";
-    std::string expected = ":ft_irc 421 " + client_nick + " " + command + " :Unknown command\r\n";
-    EXPECT_EQ(Replies::errUnknownCommand(client_nick, command), expected);
+    std::string expected = ":" + server_name + " 421 " + client_nick + " " + command + " :Unknown command\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_UNKNOWNCOMMAND, {command}), expected);
 }
 
-TEST(RepliesTest, ERR_NONICKNAMEGIVEN) {
+TEST(RepliesTest, ErrNoNicknameGivenReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
-    std::string expected = ":ft_irc 431 " + client_nick + " :No nickname given\r\n";
-    EXPECT_EQ(Replies::errNoNicknameGiven(client_nick), expected);
+    std::string expected = ":" + server_name + " 431 " + client_nick + " :No nickname given\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NONICKNAMEGIVEN, {}), expected);
 }
 
-TEST(RepliesTest, ERR_ERRONEUSNICKNAME) {
+TEST(RepliesTest, ErrErroneusNicknameReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string erroneous_nick = "bad!nick";
-    std::string expected = ":ft_irc 432 " + client_nick + " " + erroneous_nick + " :Erroneous nickname\r\n";
-    EXPECT_EQ(Replies::errErroneusNickname(client_nick, erroneous_nick), expected);
+    std::string expected = ":" + server_name + " 432 " + client_nick + " " + erroneous_nick + " :Erroneous nickname\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_ERRONEUSNICKNAME, {erroneous_nick}), expected);
 }
 
-TEST(RepliesTest, ERR_NOSUCHCHANNEL) {
+TEST(RepliesTest, ErrNoSuchChannelReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#nonexistent";
-    std::string expected = ":ft_irc 403 " + client_nick + " " + channel_name + " :No such channel\r\n";
-    EXPECT_EQ(Replies::errNoSuchChannel(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 403 " + client_nick + " " + channel_name + " :No such channel\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NOSUCHCHANNEL, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_CANNOTSENDTOCHAN) {
+TEST(RepliesTest, ErrCannotSendToChanReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#private";
-    std::string expected = ":ft_irc 404 " + client_nick + " " + channel_name + " :Cannot send to channel\r\n";
-    EXPECT_EQ(Replies::errCannotSendToChan(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 404 " + client_nick + " " + channel_name + " :Cannot send to channel\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_CANNOTSENDTOCHAN, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_NOTONCHANNEL) {
+TEST(RepliesTest, ErrNotOnChannelReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#notmember";
-    std::string expected = ":ft_irc 442 " + client_nick + " " + channel_name + " :You're not on that channel\r\n";
-    EXPECT_EQ(Replies::errNotOnChannel(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 442 " + client_nick + " " + channel_name + " :You're not on that channel\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NOTONCHANNEL, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_BADCHANNELKEY) {
+TEST(RepliesTest, ErrBadChannelKeyReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#keychan";
-    std::string expected = ":ft_irc 475 " + client_nick + " " + channel_name + " :Cannot join channel (+k)\r\n";
-    EXPECT_EQ(Replies::errBadChannelKey(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 475 " + client_nick + " " + channel_name + " :Cannot join channel (+k)\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_BADCHANNELKEY, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_INVITEONLYCHAN) {
+TEST(RepliesTest, ErrInviteOnlyChanReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#inviteonly";
-    std::string expected = ":ft_irc 473 " + client_nick + " " + channel_name + " :Cannot join channel (+i)\r\n";
-    EXPECT_EQ(Replies::errInviteOnlyChan(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 473 " + client_nick + " " + channel_name + " :Cannot join channel (+i)\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_INVITEONLYCHAN, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_CHANNELISFULL) {
+TEST(RepliesTest, ErrChannelIsFullReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
     std::string channel_name = "#fullchan";
-    std::string expected = ":ft_irc 471 " + client_nick + " " + channel_name + " :Cannot join channel (+l)\r\n";
-    EXPECT_EQ(Replies::errChannelIsFull(client_nick, channel_name), expected);
+    std::string expected = ":" + server_name + " 471 " + client_nick + " " + channel_name + " :Cannot join channel (+l)\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_CHANNELISFULL, {channel_name}), expected);
 }
 
-TEST(RepliesTest, ERR_NOTEXTTOSEND) {
+TEST(RepliesTest, ErrNoTextToSendReply) {
+    std::string server_name = "ft_irc";
     std::string client_nick = "testnick";
-    std::string expected = ":ft_irc 412 " + client_nick + " :No text to send\r\n";
-    EXPECT_EQ(Replies::errNoTextToSend(client_nick), expected);
+    std::string expected = ":" + server_name + " 412 " + client_nick + " :No text to send\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_NOTEXTTOSEND, {}), expected);
+}
+
+TEST(RepliesTest, ErrUserOnChannelReply) {
+    std::string server_name = "ft_irc";
+    std::string client_nick = "inviter";
+    std::string target_nick = "invitee";
+    std::string channel_name = "#channel";
+    std::string expected = ":" + server_name + " 443 " + client_nick + " " + target_nick + " " + channel_name + " :is already on channel\r\n";
+    EXPECT_EQ(formatReply(server_name, client_nick, ERR_USERONCHANNEL, {target_nick, channel_name}), expected);
 }

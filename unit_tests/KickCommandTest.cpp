@@ -1,11 +1,11 @@
-#include "TestFixture.hpp"
 #include "KickCommand.hpp"
 #include "Channel.hpp"
+#include "TestFixture.hpp"
 
 class KickCommandTest : public CommandTest {
   protected:
-    Channel* channel;
-    TestClient* client3; // Kicked user
+    Channel *channel;
+    TestClient *client3; // Kicked user
 
     virtual void SetUp() {
         CommandTest::SetUp();
@@ -13,12 +13,12 @@ class KickCommandTest : public CommandTest {
         registerClient(client2, "Member");   // client2 is a regular member
         client3 = new TestClient(12, "client3.host");
         server->addTestClient(client3);
-        registerClient(client3, "Target");   // client3 is the target to be kicked
+        registerClient(client3, "Target"); // client3 is the target to be kicked
 
         // Setup channel
         channel = new Channel("#test");
         server->addChannel(channel);
-        
+
         // Add members and make client1 an operator
         channel->addMember(client1);
         channel->addMember(client2);
@@ -41,8 +41,8 @@ TEST_F(KickCommandTest, Kick_Success) {
     EXPECT_FALSE(channel->isMember(client3));
 
     // 2. All remaining members (Operator, Member) and the kicked user receive the KICK message
-    std::string expected_msg = ":Operator!user@client1.host KICK #test Target :Optional reason\r\n";
-    
+    std::string expected_msg = std::string(":Operator!user@client1.host KICK #test Target :Optional reason") + "\r\n";
+
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
     EXPECT_EQ(client3->getLastMessage(), expected_msg);
@@ -59,9 +59,8 @@ TEST_F(KickCommandTest, Kick_NotAnOperator) {
     // Member receives ERR_CHANOPRIVSNEEDED
     std::vector<std::string> params;
     params.push_back("#test");
-    std::string expected_reply = formatReply(server->getServerName(), client2->getNickname(),
-                                             ERR_CHANOPRIVSNEEDED, params) +
-                                 "\r\n";
+    std::string expected_reply =
+        formatReply(server->getServerName(), client2->getNickname(), ERR_CHANOPRIVSNEEDED, params);
     EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }
 
@@ -77,9 +76,8 @@ TEST_F(KickCommandTest, Kick_TargetUserNotInChannel) {
     std::vector<std::string> params;
     params.push_back("Target");
     params.push_back("#test");
-    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_USERNOTINCHANNEL, params) +
-                                 "\r\n";
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_USERNOTINCHANNEL, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -91,8 +89,7 @@ TEST_F(KickCommandTest, Kick_NoSuchChannel) {
     std::vector<std::string> params;
     params.push_back("#nonexistent");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -103,8 +100,7 @@ TEST_F(KickCommandTest, Kick_NeedMoreParams) {
     std::vector<std::string> params;
     params.push_back("KICK");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -115,8 +111,6 @@ TEST_F(KickCommandTest, Kick_NoSuchNick) {
 
     std::vector<std::string> params;
     params.push_back("NoSuchNick");
-    std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHNICK, params) +
-        "\r\n";
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHNICK, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

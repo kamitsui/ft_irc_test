@@ -42,9 +42,7 @@ class TestClient : public Client {
     // }
     // --- 修正箇所 ---
     virtual void sendMessage(const std::string &message) const {
-        // 本物のClient::sendMessageと同様に、\r\n を付加して保存する
-        std::string fullMessage = message + "\r\n";
-        const_cast<TestClient *>(this)->receivedMessages.push_back(fullMessage);
+        const_cast<TestClient *>(this)->receivedMessages.push_back(message);
     }
 
     // 最後に受信したメッセージを取得 (テスト用ヘルパー)

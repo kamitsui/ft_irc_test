@@ -1,11 +1,11 @@
-#include "TestFixture.hpp"
 #include "ModeCommand.hpp"
 #include "Channel.hpp"
+#include "TestFixture.hpp"
 
 class ModeCommandTest : public CommandTest {
   protected:
-    Channel* channel;
-    TestClient* client3;
+    Channel *channel;
+    TestClient *client3;
 
     virtual void SetUp() {
         CommandTest::SetUp();
@@ -18,7 +18,7 @@ class ModeCommandTest : public CommandTest {
         // Setup channel
         channel = new Channel("#test");
         server->addChannel(channel);
-        
+
         // Add members and make client1 an operator
         channel->addMember(client1);
         channel->addMember(client2);
@@ -37,7 +37,7 @@ TEST_F(ModeCommandTest, Mode_AddOperator_Success) {
     modeCmd->execute(client1, args); // UserA (op) ops UserB
 
     EXPECT_TRUE(channel->isOperator(client2));
-    
+
     // Check for broadcast message
     ASSERT_FALSE(client1->receivedMessages.empty());
     EXPECT_NE(client1->getLastMessage().find("MODE #test +o UserB"), std::string::npos);
@@ -57,7 +57,7 @@ TEST_F(ModeCommandTest, Mode_RemoveOperator_Success) {
     modeCmd->execute(client1, args); // UserA (op) de-ops UserB
 
     EXPECT_FALSE(channel->isOperator(client2));
-    
+
     // Check for broadcast message
     ASSERT_FALSE(client1->receivedMessages.empty());
     EXPECT_NE(client1->getLastMessage().find("MODE #test -o UserB"), std::string::npos);
@@ -74,9 +74,8 @@ TEST_F(ModeCommandTest, Mode_NotAnOperator) {
 
     std::vector<std::string> params;
     params.push_back("#test");
-    std::string expected_reply = formatReply(server->getServerName(), client2->getNickname(),
-                                             ERR_CHANOPRIVSNEEDED, params) +
-                                 "\r\n";
+    std::string expected_reply =
+        formatReply(server->getServerName(), client2->getNickname(), ERR_CHANOPRIVSNEEDED, params);
     EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }
 
@@ -92,9 +91,8 @@ TEST_F(ModeCommandTest, Mode_TargetUserNotInChannel) {
     std::vector<std::string> params;
     params.push_back("UserC");
     params.push_back("#test");
-    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_USERNOTINCHANNEL, params) +
-                                 "\r\n";
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_USERNOTINCHANNEL, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -105,8 +103,7 @@ TEST_F(ModeCommandTest, Mode_NeedMoreParams) {
     std::vector<std::string> params;
     params.push_back("MODE");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -120,9 +117,7 @@ TEST_F(ModeCommandTest, Mode_UnknownMode) {
     std::vector<std::string> params;
     params.push_back("x");
     params.push_back("#test");
-    std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNMODE, params) +
-        "\r\n";
+    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNMODE, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -132,7 +127,7 @@ TEST_F(ModeCommandTest, Mode_SetTopicProtection) {
     modeCmd->execute(client1, args);
 
     EXPECT_TRUE(channel->hasMode('t'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test +t\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +t") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
@@ -147,7 +142,7 @@ TEST_F(ModeCommandTest, Mode_UnsetTopicProtection) {
     modeCmd->execute(client1, args);
 
     EXPECT_FALSE(channel->hasMode('t'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test -t\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -t") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
@@ -158,7 +153,7 @@ TEST_F(ModeCommandTest, Mode_SetNoExternalMessages) {
     modeCmd->execute(client1, args);
 
     EXPECT_TRUE(channel->hasMode('n'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test +n\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +n") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
@@ -173,7 +168,7 @@ TEST_F(ModeCommandTest, Mode_UnsetNoExternalMessages) {
     modeCmd->execute(client1, args);
 
     EXPECT_FALSE(channel->hasMode('n'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test -n\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -n") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
@@ -186,7 +181,7 @@ TEST_F(ModeCommandTest, Mode_SetKey) {
 
     EXPECT_TRUE(channel->hasMode('k'));
     EXPECT_EQ(channel->getKey(), "channelkey");
-    std::string expected_msg = ":UserA!user@client1.host MODE #test +k channelkey\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +k channelkey") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
 
@@ -202,7 +197,7 @@ TEST_F(ModeCommandTest, Mode_UnsetKey) {
 
     EXPECT_FALSE(channel->hasMode('k'));
     EXPECT_EQ(channel->getKey(), "");
-    std::string expected_msg = ":UserA!user@client1.host MODE #test -k\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -k") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
 
@@ -216,8 +211,8 @@ TEST_F(ModeCommandTest, Mode_UnsetKey_IncorrectKey) {
     args.push_back("wrongkey"); // Incorrect key
     modeCmd->execute(client1, args);
 
-    EXPECT_TRUE(channel->hasMode('k')); // Should still have mode +k
-    EXPECT_EQ(channel->getKey(), "channelkey"); // Key should not be unset
+    EXPECT_TRUE(channel->hasMode('k'));             // Should still have mode +k
+    EXPECT_EQ(channel->getKey(), "channelkey");     // Key should not be unset
     EXPECT_TRUE(client1->receivedMessages.empty()); // No broadcast for failed unset
 }
 
@@ -229,7 +224,7 @@ TEST_F(ModeCommandTest, Mode_SetLimit) {
 
     EXPECT_TRUE(channel->hasMode('l'));
     EXPECT_EQ(channel->getLimit(), 10);
-    std::string expected_msg = ":UserA!user@client1.host MODE #test +l 10\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +l 10") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
 
@@ -244,7 +239,7 @@ TEST_F(ModeCommandTest, Mode_UnsetLimit) {
 
     EXPECT_FALSE(channel->hasMode('l'));
     EXPECT_EQ(channel->getLimit(), 0);
-    std::string expected_msg = ":UserA!user@client1.host MODE #test -l\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -l") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
 
@@ -254,7 +249,7 @@ TEST_F(ModeCommandTest, Mode_SetInviteOnly) {
     modeCmd->execute(client1, args);
 
     EXPECT_TRUE(channel->hasMode('i'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test +i\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +i") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
 
@@ -267,6 +262,6 @@ TEST_F(ModeCommandTest, Mode_UnsetInviteOnly) {
     modeCmd->execute(client1, args);
 
     EXPECT_FALSE(channel->hasMode('i'));
-    std::string expected_msg = ":UserA!user@client1.host MODE #test -i\r\n";
+    std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -i") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }

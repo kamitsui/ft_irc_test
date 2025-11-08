@@ -122,14 +122,14 @@ class ChannelTest : public CommandTest {
 
 TEST_F(ChannelTest, Broadcast_AllMembers) {
     channel->broadcast("Hello", NULL);
-    ASSERT_EQ(client1->getLastMessage(), "Hello\r\n");
-    ASSERT_EQ(client2->getLastMessage(), "Hello\r\n");
+    ASSERT_EQ(client1->getLastMessage(), "Hello");
+    ASSERT_EQ(client2->getLastMessage(), "Hello");
 }
 
 TEST_F(ChannelTest, Broadcast_ExcludeClient) {
     channel->broadcast("Hello", client1);     // client1 を除く
     ASSERT_EQ(client1->getLastMessage(), ""); // client1には送信されない
-    ASSERT_EQ(client2->getLastMessage(), "Hello\r\n");
+    ASSERT_EQ(client2->getLastMessage(), "Hello");
 }
 
 TEST_F(ChannelTest, MemberManagement) {

@@ -12,8 +12,7 @@ TEST_F(CommandTest, Pass_IncorrectPassword) {
     passCmd->execute(client1, args);
     ASSERT_FALSE(client1->isAuthenticated());
     std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_PASSWDMISMATCH, std::vector<std::string>()) +
-                                 "\r\n";
+                                             ERR_PASSWDMISMATCH, std::vector<std::string>());
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -23,8 +22,7 @@ TEST_F(CommandTest, Pass_NoPassword) {
     std::vector<std::string> params;
     params.push_back("PASS");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -33,7 +31,6 @@ TEST_F(CommandTest, Pass_AlreadyRegistered) {
     args.push_back("pass123");
     passCmd->execute(client1, args);
     std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_ALREADYREGISTRED, std::vector<std::string>()) +
-                                 "\r\n";
+                                             ERR_ALREADYREGISTRED, std::vector<std::string>());
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

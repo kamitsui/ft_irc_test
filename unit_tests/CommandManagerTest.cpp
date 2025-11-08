@@ -16,7 +16,7 @@ TEST_F(CommandManagerTest, ExecuteCommandWithTrailingArg) {
     registerClient(client2, "client2");
 
     cmdManager->parseAndExecute(client1, "PRIVMSG client2 :Hello there!");
-    std::string expected_msg = client1->getPrefix() + " PRIVMSG client2 :Hello there!\r\n";
+    std::string expected_msg = client1->getPrefix() + " PRIVMSG client2 :Hello there!" + "\r\n";
     EXPECT_EQ(client2->getLastMessage(), expected_msg);
 }
 
@@ -27,8 +27,7 @@ TEST_F(CommandManagerTest, ExecuteUnknownCommand) {
     std::vector<std::string> args;
     args.push_back("UNKNOWNCMD");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNCOMMAND, args) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_UNKNOWNCOMMAND, args);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -49,7 +48,7 @@ TEST_F(CommandManagerTest, ExecuteCommandWithoutArgs) {
     cmdManager->parseAndExecute(client1, "NICK");
 
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN) + "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 

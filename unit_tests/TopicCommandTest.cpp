@@ -63,7 +63,7 @@ TEST_F(TopicCommandTest, Topic_ViewTopic) {
     params.push_back("#test");
     params.push_back("A readable topic.");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_TOPIC, params) + "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_TOPIC, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -76,7 +76,7 @@ TEST_F(TopicCommandTest, Topic_NoTopicSet) {
     std::vector<std::string> params;
     params.push_back("#test");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, params) + "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -87,8 +87,7 @@ TEST_F(TopicCommandTest, Topic_NeedMoreParams) {
     std::vector<std::string> params;
     params.push_back("TOPIC");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -101,8 +100,7 @@ TEST_F(TopicCommandTest, Topic_NotOnChannel) {
     std::vector<std::string> params;
     params.push_back("#test");
     std::string expected_reply =
-        formatReply(server->getServerName(), client2->getNickname(), ERR_NOTONCHANNEL, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client2->getNickname(), ERR_NOTONCHANNEL, params);
     EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }
 
@@ -114,8 +112,7 @@ TEST_F(TopicCommandTest, Topic_NoSuchChannel) {
     std::vector<std::string> params;
     params.push_back("#nonexistent");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NOSUCHCHANNEL, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -150,7 +147,6 @@ TEST_F(TopicCommandTest, Topic_SetTopic_WithTopicProtection_AsNonOperator) {
     std::vector<std::string> params;
     params.push_back("#test");
     std::string expected_reply =
-        formatReply(server->getServerName(), client2->getNickname(), ERR_CHANOPRIVSNEEDED, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client2->getNickname(), ERR_CHANOPRIVSNEEDED, params);
     EXPECT_EQ(client2->getLastMessage(), expected_reply);
 }

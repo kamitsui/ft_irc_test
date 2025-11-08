@@ -114,8 +114,7 @@ TEST_F(CommandTest, User_Success_CompletesRegistration) {
     welcome_args.push_back(client1->getNickname());
     welcome_args.push_back(client1->getPrefix());
     std::string expected_welcome =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_WELCOME, welcome_args) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_WELCOME, welcome_args);
     EXPECT_EQ(client1->receivedMessages[0], expected_welcome);
 
     // 002 RPL_YOURHOST
@@ -123,8 +122,7 @@ TEST_F(CommandTest, User_Success_CompletesRegistration) {
     yourhost_args.push_back(client1->getNickname());
     yourhost_args.push_back(server->getServerName());
     std::string expected_yourhost =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_YOURHOST, yourhost_args) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_YOURHOST, yourhost_args);
     EXPECT_EQ(client1->receivedMessages[1], expected_yourhost);
 }
 
@@ -138,8 +136,7 @@ TEST_F(CommandTest, User_NeedMoreParams) {
     std::vector<std::string> params;
     params.push_back("USER");
     std::string expected_reply =
-        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), ERR_NEEDMOREPARAMS, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }
 
@@ -152,7 +149,6 @@ TEST_F(CommandTest, User_AlreadyRegistered) {
     userCmd->execute(client1, args);
 
     std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_ALREADYREGISTRED, std::vector<std::string>()) +
-                                 "\r\n";
+                                             ERR_ALREADYREGISTRED, std::vector<std::string>());
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
 }

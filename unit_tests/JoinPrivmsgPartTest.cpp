@@ -23,15 +23,14 @@ TEST_F(ChannelCommandsTest, Join_NewChannel) {
     ASSERT_EQ(client1->receivedMessages.size(), 4);
 
     // 1. JOIN通知
-    std::string expected_join_msg = client1->getPrefix() + " JOIN :#new\r\n";
+    std::string expected_join_msg = client1->getPrefix() + " JOIN " + "#new" + "\r\n";
     EXPECT_EQ(client1->receivedMessages[0], expected_join_msg);
 
     // 2. RPL_NOTOPIC (331)
     std::vector<std::string> notopic_args;
     notopic_args.push_back("#new");
     std::string expected_notopic =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, notopic_args) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NOTOPIC, notopic_args);
     EXPECT_EQ(client1->receivedMessages[1], expected_notopic);
 
     // 3. RPL_NAMREPLY (353)
@@ -39,16 +38,14 @@ TEST_F(ChannelCommandsTest, Join_NewChannel) {
     namreply_args.push_back("#new");
     namreply_args.push_back("@" + client1->getNickname()); // 最初のメンバーはオペレータ
     std::string expected_namreply =
-        formatReply(server->getServerName(), client1->getNickname(), RPL_NAMREPLY, namreply_args) +
-        "\r\n";
+        formatReply(server->getServerName(), client1->getNickname(), RPL_NAMREPLY, namreply_args);
     EXPECT_EQ(client1->receivedMessages[2], expected_namreply);
 
     // 4. RPL_ENDOFNAMES (366)
     std::vector<std::string> endofnames_args;
     endofnames_args.push_back("#new");
-    std::string expected_endofnames = formatReply(server->getServerName(), client1->getNickname(),
-                                                  RPL_ENDOFNAMES, endofnames_args) +
-                                      "\r\n";
+    std::string expected_endofnames =
+        formatReply(server->getServerName(), client1->getNickname(), RPL_ENDOFNAMES, endofnames_args);
     EXPECT_EQ(client1->receivedMessages[3], expected_endofnames);
 }
 
@@ -62,7 +59,7 @@ TEST_F(ChannelCommandsTest, Join_ExistingChannel) {
     joinCmd->execute(client1, args);
 
     // client2 に client1 のJOINが通知される
-    EXPECT_EQ(client2->getLastMessage(), ":User1!user@client1.host JOIN :#test\r\n");
+    EXPECT_EQ(client2->getLastMessage(), std::string(":User1!user@client1.host JOIN #test") + "\r\n");
 }
 
 TEST_F(ChannelCommandsTest, Privmsg_ToChannel) {
@@ -82,7 +79,8 @@ TEST_F(ChannelCommandsTest, Privmsg_ToChannel) {
     // 自分(client1)には送信されない
     ASSERT_TRUE(client1->receivedMessages.empty());
     // 相手(client2)に送信される
-    ASSERT_EQ(client2->getLastMessage(), ":User1!user@client1.host PRIVMSG #test :Hello Channel!\r\n");
+    ASSERT_EQ(client2->getLastMessage(),
+              std::string(":User1!user@client1.host PRIVMSG #test :Hello Channel!") + "\r\n");
 }
 
 TEST_F(ChannelCommandsTest, Privmsg_ToUser) {
@@ -91,7 +89,7 @@ TEST_F(ChannelCommandsTest, Privmsg_ToUser) {
     privmsgCmd->execute(client1, args);
 
     ASSERT_TRUE(client1->receivedMessages.empty());
-    ASSERT_EQ(client2->getLastMessage(), ":User1!user@client1.host PRIVMSG User2 :Hello User2!\r\n");
+    ASSERT_EQ(client2->getLastMessage(), std::string(":User1!user@client1.host PRIVMSG User2 :Hello User2!") + "\r\n");
 }
 
 TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel) {
@@ -108,7 +106,7 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel) {
 
     // +n モードがデフォルトで設定されていないため、メッセージは送信されるはず
     // (CommandUtils.cpp の変更により、+n がない場合は外部メッセージを許可するようになった)
-    ASSERT_EQ(client2->getLastMessage(), ":User1!user@client1.host PRIVMSG #test :Am I here?\r\n");
+    ASSERT_EQ(client2->getLastMessage(), std::string(":User1!user@client1.host PRIVMSG #test :Am I here?") + "\r\n");
     ASSERT_TRUE(client1->receivedMessages.empty()); // 送信者には返信なし
 }
 
@@ -116,7 +114,7 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel_WithNoExternalMessagesMode) {
     // #test を作成 (client2のみ参加)
     args.push_back("#test");
     joinCmd->execute(client2, args);
-    
+
     // client2 (オペレーター) が +n モードを設定
     args.clear();
     args.push_back("#test");
@@ -134,9 +132,8 @@ TEST_F(ChannelCommandsTest, Privmsg_NotOnChannel_WithNoExternalMessagesMode) {
     // ERR_CANNOTSENDTOCHAN が返る
     std::vector<std::string> params;
     params.push_back("#test");
-    std::string expected_reply = formatReply(server->getServerName(), client1->getNickname(),
-                                             ERR_CANNOTSENDTOCHAN, params) +
-                                 "\r\n";
+    std::string expected_reply =
+        formatReply(server->getServerName(), client1->getNickname(), ERR_CANNOTSENDTOCHAN, params);
     EXPECT_EQ(client1->getLastMessage(), expected_reply);
     ASSERT_TRUE(client2->receivedMessages.empty()); // client2にはメッセージが届かない
 }

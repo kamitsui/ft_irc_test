@@ -64,6 +64,7 @@ SRCS = \
       WhoCommandTest.cpp \
       WhoisCommandTest.cpp \
       InviteCommandTest.cpp \
+      RepliesTest.cpp \
       \
       CommandManagerTest.cpp \
       \
