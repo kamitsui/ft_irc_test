@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 import socket
 import time
 
@@ -82,3 +84,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Run the python test
+#python3 irc_connect_test.py

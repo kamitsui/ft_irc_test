@@ -145,9 +145,8 @@ run_client_operations() {
   echo "--- クライアント側の操作を開始 ---"
 
   # 1回目の接続
-  #exec_command $CLIENT_PANE "docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irssi $PORT" 3
   exec_command $CLIENT_PANE "docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irssi-client irssi" 3
-  exec_command $CLIENT_PANE "/SERVER ADD -nocap $SERVER_ADDRESS $PORT" 2
+  exec_command $CLIENT_PANE "/SERVER ADD -nocap $SERVER_ADDRESS $PORT $PASS" 2
   exec_command $CLIENT_PANE "/connect $SERVER_ADDRESS" 2
   # pass not command
   exec_command $CLIENT_PANE "/pass $PASS" 2
@@ -156,7 +155,8 @@ run_client_operations() {
   exec_command $CLIENT_PANE "/join #general" 2
   send_ctrl_char $CLIENT_PANE "C-d"
   exec_command $CLIENT_PANE 'echo $?'
-  exit
+  return
+  #exit
   exec_command $CLIENT_PANE "USER guest 0 * :Guest User"
   exec_command $CLIENT_PANE "NICK guest"
   send_ctrl_char $CLIENT_PANE "C-d"
