@@ -17,6 +17,7 @@ class IRCClient:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(2.0) # タイムアウトを少し長めに
         self.buffer = ""
+        self.auto_pong = True # 新しい属性
 
     def connect(self):
         """サーバーにソケット接続を確立します。"""
@@ -68,8 +69,9 @@ class IRCClient:
                 line, self.buffer = self.buffer.split("\r\n", 1)
                 msg = self.parse_message(line)
                 if msg and msg["command"] == "PING":
-                    self._handle_ping(msg)
-                    # continueではなく、PINGメッセージをテストロジックに返す
+                    if self.auto_pong: # auto_pongがTrueの場合のみPONGを送信
+                        self._handle_ping(msg)
+                    return msg
                 return msg
         return None
 

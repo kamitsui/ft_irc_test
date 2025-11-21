@@ -24,8 +24,16 @@ readonly SERVER_PANE=1
 readonly CLIENT_PANE=2
 # 各コマンド実行後の基本的な待機時間（秒）
 readonly WAIT_SECONDS=2
+# サーバーのアドレス
+readonly SERVER_ADDRESS="localhost"
 # 実行ファイル
-readonly TARGET="$SCRIPT_DIR/../../ircserv"
+if [ $# == 1 ] && [ "$1" == "docker" ]; then
+  TARGET="docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irc-server /app/ircserv"
+  #readonly SERVER_ADDRESS="irc-server"
+  shift # Remove 'docker' from arguments so the rest can be passed
+else
+  readonly TARGET="$SCRIPT_DIR/../../ircserv"
+fi
 # パスワード
 readonly PASS="password"
 
@@ -54,6 +62,31 @@ setup_tmux() {
   # 1. tmuxに実行させるコマンドを一時ファイルに書き出す
   echo "INFO: レイアウト設定ファイルを作成します..."
   cat > "$LAYOUT_FILE" << EOL
+# Enable vim mode
+set-window-option -g mode-keys vi
+
+# Enable mouse support (for resizing panes and selecting panes with the mouse)
+set -g mouse on
+
+# Split
+bind | split-window -h
+bind - split-window -v
+
+# Resize pane
+bind H resize-pane -L 2
+bind J resize-pane -D 2
+bind K resize-pane -U 2
+bind L resize-pane -R 2
+
+# Rename window
+bind R command-prompt "rename-window '%%'"
+
+# Other
+bind c new-window
+bind , command-prompt "split-window -v '%%'"
+bind . command-prompt "split-window -h '%%'"
+bind d detach-client
+bind x kill-session
 # 新しいデタッチセッションを作成
 new-session -d -s "$SESSION_NAME" -n "Test" -x 120 -y 30
 # ペインを分割
@@ -112,18 +145,18 @@ run_client_operations() {
   echo "--- クライアント側の操作を開始 ---"
 
   # 1回目の接続
-  exec_command $CLIENT_PANE "nc localhost $PORT" 3
+  exec_command $CLIENT_PANE "nc $SERVER_ADDRESS $PORT" 3
   exec_command $CLIENT_PANE "USER guest 0 * :Guest User"
   exec_command $CLIENT_PANE "NICK guest"
   send_ctrl_char $CLIENT_PANE "C-d"
 
   # 2回目の接続
-  exec_command $CLIENT_PANE "nc localhost $PORT" 3
+  exec_command $CLIENT_PANE "nc $SERVER_ADDRESS $PORT" 3
   exec_command $CLIENT_PANE "Hello again, server!"
   send_ctrl_char $CLIENT_PANE "C-d"
 
   # 3回目の接続
-  exec_command $CLIENT_PANE "nc localhost $PORT" 3
+  exec_command $CLIENT_PANE "nc $SERVER_ADDRESS $PORT" 3
   exec_command $CLIENT_PANE "This is the final message."
   send_ctrl_char $CLIENT_PANE "C-c"
   exec_command $CLIENT_PANE 'echo $?'

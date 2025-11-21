@@ -73,6 +73,7 @@ def test_no_pong_response_leads_to_disconnect(irc_server):
     Note: Requires short PING_TIMEOUT and PONG_TIMEOUT on server.
     """
     client = IRCClient(SERVER_PORT, "zombie")
+    client.auto_pong = False # PONGを自動送信しない
     client.connect()
     client.register(SERVER_PASSWORD)
 
