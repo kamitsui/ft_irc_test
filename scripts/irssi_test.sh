@@ -70,7 +70,11 @@ setup_tmux() {
 set-window-option -g mode-keys vi
 
 # Enable mouse support (for resizing panes and selecting panes with the mouse)
-set -g mouse on
+#set -g mouse on
+
+# xsel または xclip を使用してコピー
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard"
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard"
 
 # Split
 bind | split-window -h
