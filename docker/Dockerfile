@@ -56,7 +56,7 @@ RUN DEBIAN_PRIORITY=critical apt-get update && apt-get install -y \
 	clang \
 	cmake \
 	git \
-	git-lfs
+	git-lfs \
 	valgrind \
 	wget \
 	curl \

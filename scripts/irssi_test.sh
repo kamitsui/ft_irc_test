@@ -26,12 +26,16 @@ readonly CLIENT_PANE=2
 readonly WAIT_SECONDS=2
 # 実行ファイル
 if [ $# == 1 ] && [ "$1" == "docker" ]; then
-  TARGET="docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irc-server /app/ircserv"
+  readonly TARGET="docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irc-server /app/ircserv"
+  readonly OPTION="-nocap"
   readonly SERVER_ADDRESS="irc-server"
+  readonly IRSSI="docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irssi-client irssi"
   shift # Remove 'docker' from arguments so the rest can be passed
 else
   readonly TARGET="$SCRIPT_DIR/../../ircserv"
+  readonly OPTION=""
   readonly SERVER_ADDRESS="localhost"
+  readonly IRSSI='irssi'
 fi
 # パスワード
 readonly PASS="password"
@@ -145,21 +149,20 @@ run_client_operations() {
   echo "--- クライアント側の操作を開始 ---"
 
   # 1回目の接続
-  exec_command $CLIENT_PANE "docker compose -f $SCRIPT_DIR/../docker/docker-compose.yml exec irssi-client irssi" 3
-  exec_command $CLIENT_PANE "/SERVER ADD -nocap $SERVER_ADDRESS $PORT $PASS" 2
+  exec_command $CLIENT_PANE "$IRSSI" 3
+  exec_command $CLIENT_PANE "/SERVER ADD $OPTION $SERVER_ADDRESS $PORT $PASS" 2
   exec_command $CLIENT_PANE "/connect $SERVER_ADDRESS" 2
-  # pass not command
-  exec_command $CLIENT_PANE "/pass $PASS" 2
-  exec_command $CLIENT_PANE "/nick test_nick" 2
-  exec_command $CLIENT_PANE "/user test_user" 2
+  # ユーザー登録（PASS-> NICK and USER）: 自動送信
+  #exec_command $CLIENT_PANE "/pass $PASS" 2
+  #exec_command $CLIENT_PANE "/nick test_nick" 2
+  #exec_command $CLIENT_PANE "/user test_user test_user * :Test User" 2
+  # チャンネル参加
   exec_command $CLIENT_PANE "/join #general" 2
-  send_ctrl_char $CLIENT_PANE "C-d"
-  exec_command $CLIENT_PANE 'echo $?'
+  # シグナル、EOFなど
+  #send_ctrl_char $CLIENT_PANE "C-d"
+  #exec_command $CLIENT_PANE 'echo $?'
   return
   #exit
-  exec_command $CLIENT_PANE "USER guest 0 * :Guest User"
-  exec_command $CLIENT_PANE "NICK guest"
-  send_ctrl_char $CLIENT_PANE "C-d"
 
   # 2回目の接続
   exec_command $CLIENT_PANE "nc localhost $PORT" 3
