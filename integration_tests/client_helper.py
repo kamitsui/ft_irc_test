@@ -17,7 +17,8 @@ class IRCClient:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(2.0) # タイムアウトを少し長めに
         self.buffer = ""
-        self.auto_pong = True # 新しい属性
+        self.message_queue = [] # メッセージキューを追加
+        self.auto_pong = True
 
     def connect(self):
         """サーバーにソケット接続を確立します。"""
@@ -50,30 +51,39 @@ class IRCClient:
 
     def get_message(self, timeout=1.0):
         """
-        バッファから1行 (CRLF区切り) のIRCメッセージを取得する。
-        メッセージがなければNoneを返す。
-        PINGメッセージは自動的に処理される。
+        メッセージキューまたはネットワークからIRCメッセージを取得する。
+        PINGは自動で処理される。
         """
+        # 1. メッセージキューにメッセージがあれば、それを返す
+        if self.message_queue:
+            return self.message_queue.pop(0)
+
         start_time = time.time()
         while time.time() - start_time < timeout:
-            # バッファに改行が含まれているか確認
-            if "\r\n" not in self.buffer:
-                raw_data = self._recv_raw(timeout - (time.time() - start_time))
-                if raw_data is None: # タイムアウト
-                    return None
-                if raw_data == "": # 接続切断
-                    return None
-                self.buffer += raw_data
-
-            if "\r\n" in self.buffer:
+            # 2. バッファから全ての完全なメッセージを解析し、キューに入れる
+            while "\r\n" in self.buffer:
                 line, self.buffer = self.buffer.split("\r\n", 1)
                 msg = self.parse_message(line)
-                if msg and msg["command"] == "PING":
-                    if self.auto_pong: # auto_pongがTrueの場合のみPONGを送信
+                if msg:
+                    if msg["command"] == "PING" and self.auto_pong:
                         self._handle_ping(msg)
-                    return msg
-                return msg
-        return None
+                    else:
+                        self.message_queue.append(msg)
+            
+            # 3. キューにメッセージが入ったら、最初のものを返す
+            if self.message_queue:
+                return self.message_queue.pop(0)
+
+            # 4. バッファが不完全な場合、ネットワークから読み込む
+            raw_data = self._recv_raw(0.1)
+            if raw_data is None: # タイムアウト
+                time.sleep(0.01)
+                continue
+            if raw_data == "": # 接続切断
+                return None
+            self.buffer += raw_data
+        
+        return None # 総合タイムアウト
 
     def wait_for_command(self, expected_command, timeout=2.0):
         """
@@ -94,7 +104,6 @@ class IRCClient:
         """
         if "args" in ping_msg and ping_msg["args"]:
             token = ping_msg["args"][0]
-            self.send(f"PONG :{token}")
         else:
             self.send("PONG :irc.myserver.com") # デフォルトのサーバー名
 
@@ -104,20 +113,35 @@ class IRCClient:
         self.send(f"NICK {self.nick}")
         self.send(f"USER {self.nick} 0 * :{user_real_name}")
 
-        # 001 (RPL_WELCOME) が返ってくるまで待つ
-        welcome_msg = self.wait_for_command("001")
-        assert welcome_msg is not None, f"[{self.nick}] 登録失敗: RPL_WELCOME (001) が受信できませんでした"
-
-        # 002 (RPL_YOURHOST) も待つ
-        yourhost_msg = self.wait_for_command("002")
-        assert yourhost_msg is not None, f"[{self.nick}] 登録失敗: RPL_YOURHOST (002) が受信できませんでした"
-
-        # 001, 002以降の応答を読み飛ばす (003, 004など)
-        while self.get_message(timeout=0.1) is not None:
-            pass
+        expected_registration_commands = ["001", "002"]
+        received_registration_messages = []
+        start_time = time.time()
+        print(f"[{self.nick}] Debug: Starting registration loop.")
+        while len(received_registration_messages) < 2 and (time.time() - start_time < 5): # タイムアウトは調整
+            msg = self.get_message(timeout=0.1)
+            if msg:
+                print(f"[{self.nick}] Debug: get_message returned: {msg}")
+            if msg and msg["command"] in expected_registration_commands:
+                received_registration_messages.append(msg)
+                print(f"[{self.nick}] Debug: Appended {msg['command']}. Current received: {[m['command'] for m in received_registration_messages]}")
+            elif msg:
+                print(f"[{self.nick}] Debug: Skipped unexpected msg: {msg}")
+            # else: msg is None (timeout for get_message)
+        print(f"[{self.nick}] Debug: Exiting registration loop. Final received: {[m['command'] for m in received_registration_messages]}")
+        
+        # 001と002が両方存在することを確認
+        assert any(msg["command"] == "001" for msg in received_registration_messages), \
+            f"[{self.nick}] 登録失敗: RPL_WELCOME (001) が受信できませんでした"
+        assert any(msg["command"] == "002" for msg in received_registration_messages), \
+            f"[{self.nick}] 登録失敗: RPL_YOURHOST (002) が受信できませんでした"
+        print(f"[{self.nick}] Debug: Registration assertions passed.")
+        # 003と004もオプションでチェック
+        # assert any(msg["command"] == "003" for msg in received_registration_messages), \
+        #     f"[{self.nick}] 登録失敗: RPL_CREATED (003) が受信できませんでした"
+        # assert any(msg["command"] == "004" for msg in received_registration_messages), \
+        #     f"[{self.nick}] 登録失敗: RPL_MYINFO (004) が受信できませんでした"
 
         print(f"[{self.nick}] 登録完了 (Nick: {self.nick})")
-
 
     def close(self):
         """ソケット接続を閉じます。"""
