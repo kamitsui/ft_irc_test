@@ -83,3 +83,40 @@ TEST_F(ClientBufferTest, ReadLine_PartialLine) {
 
 // バッファが空のケース
 TEST_F(ClientBufferTest, ReadLine_Empty) { ASSERT_EQ(client->readLineFromBuffer(), ""); }
+
+// TEST: appendToSendBufferとgetSendBufferの基本機能
+TEST_F(ClientBufferTest, SendBuffer_AppendAndGet) {
+    ASSERT_TRUE(client->getSendBuffer().empty());
+
+    client->appendToSendBuffer("HELLO");
+    ASSERT_EQ(client->getSendBuffer(), "HELLO");
+
+    client->appendToSendBuffer(" WORLD");
+    ASSERT_EQ(client->getSendBuffer(), "HELLO WORLD");
+}
+
+// TEST: sendBufferからのデータ削除 (部分送信のシミュレーション)
+TEST_F(ClientBufferTest, SendBuffer_RemoveSentData) {
+    client->appendToSendBuffer("FULL_MESSAGE_TO_SEND");
+    ASSERT_EQ(client->getSendBuffer().length(), 20);
+
+    // 最初の5バイトが送信されたと仮定
+    client->removeSentData(5);
+    ASSERT_EQ(client->getSendBuffer(), "MESSAGE_TO_SEND");
+    ASSERT_EQ(client->getSendBuffer().length(), 15);
+
+    // 残り全てが送信されたと仮定
+    client->removeSentData(15);
+    ASSERT_TRUE(client->getSendBuffer().empty());
+}
+
+// TEST: sendBufferが空の時にデータ削除を試みる
+TEST_F(ClientBufferTest, SendBuffer_RemoveFromEmpty) {
+    ASSERT_TRUE(client->getSendBuffer().empty());
+
+    client->removeSentData(0); // 0バイト削除
+    ASSERT_TRUE(client->getSendBuffer().empty());
+
+    client->removeSentData(100); // 空文字列から100バイト削除を試みる
+    ASSERT_TRUE(client->getSendBuffer().empty());
+}
