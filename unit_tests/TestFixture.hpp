@@ -54,7 +54,7 @@ class TestClient : public Client {
     }
 
     // テスト用に最終アクティビティ時刻を設定する
-    void setLastActivityTime(time_t newTime) {
+    void setLastActivityTime(std::time_t newTime) {
         this->_lastActivityTime = newTime;
     }
 };
