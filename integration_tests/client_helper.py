@@ -65,10 +65,9 @@ class IRCClient:
                 line, self.buffer = self.buffer.split("\r\n", 1)
                 msg = self.parse_message(line)
                 if msg:
+                    self.message_queue.append(msg) # すべてのメッセージをキューに追加する
                     if msg["command"] == "PING" and self.auto_pong:
-                        self._handle_ping(msg)
-                    else:
-                        self.message_queue.append(msg)
+                        self._handle_ping(msg) # PONG応答は引き続き行う
             
             # 3. キューにメッセージが入ったら、最初のものを返す
             if self.message_queue:
@@ -102,10 +101,14 @@ class IRCClient:
         """
         PINGメッセージに応答する。
         """
+        token = ""
         if "args" in ping_msg and ping_msg["args"]:
             token = ping_msg["args"][0]
-        else:
-            self.send("PONG :irc.myserver.com") # デフォルトのサーバー名
+        self.send(f"PONG :{token}")
+        #if "args" in ping_msg and ping_msg["args"]:
+        #    token = ping_msg["args"][0]
+        #else:
+        #    self.send("PONG :irc.myserver.com") # デフォルトのサーバー名
 
     def register(self, password, user_real_name="Test User"):
         """クライアント登録を自動で行う"""
