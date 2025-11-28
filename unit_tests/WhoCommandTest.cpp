@@ -41,7 +41,7 @@ TEST_F(WhoCommandTest, Who_ChannelMembers) {
     args.push_back("#test");
     whoCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 3); // 2 RPL_WHOREPLY + 1 RPL_ENDOFWHO
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(3)); // 2 RPL_WHOREPLY + 1 RPL_ENDOFWHO
 
     std::string expected_reply_a_str;
     {
@@ -86,7 +86,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserInChannel) {
     args.push_back("UserB");
     whoCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
 
     // Check RPL_WHOREPLY for UserB
     std::string expected_reply_b_str;
@@ -119,7 +119,7 @@ TEST_F(WhoCommandTest, Who_SpecificUserNotInChannelButOnServer) {
     args.push_back("UserC");
     whoCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
 
     // Check RPL_WHOREPLY for UserC
     std::string expected_reply_c_str;
@@ -151,7 +151,7 @@ TEST_F(WhoCommandTest, Who_NonExistentTarget) {
     args.push_back("NonExistentUser");
     whoCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 1); // Only RPL_ENDOFWHO
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(1)); // Only RPL_ENDOFWHO
 
     std::string expected_end_reply_str;
     {
@@ -176,7 +176,7 @@ TEST_F(WhoCommandTest, Who_NoArgs_ListsAllUsers) {
     whoCmd->execute(client1, args);
 
     // Expect replies for UserA, UserB, UserC, UserD + ENDOFWHO
-    ASSERT_EQ(client1->receivedMessages.size(), 5);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(5));
 
     std::string expected_reply_a_str;
     {

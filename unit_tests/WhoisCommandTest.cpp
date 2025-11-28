@@ -50,7 +50,7 @@ TEST_F(WhoisCommandTest, Whois_Success) {
     args.push_back("UserB");
     whoisCmd->execute(client1, args);
 
-    ASSERT_GE(client1->receivedMessages.size(), 4);
+    ASSERT_GE(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
 
     // 1. RPL_WHOISUSER (311)
     std::string whoisuser_reply = client1->receivedMessages[0];
@@ -85,7 +85,7 @@ TEST_F(WhoisCommandTest, Whois_NoSuchNick) {
     args.push_back("NonExistentUser");
     whoisCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(1));
     std::vector<std::string> params;
     params.push_back("NonExistentUser");
     std::string expected_reply =
@@ -97,7 +97,7 @@ TEST_F(WhoisCommandTest, Whois_NoNicknameGiven) {
     // No arguments
     whoisCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(1));
     std::string expected_reply =
         formatReply(server->getServerName(), client1->getNickname(), ERR_NONICKNAMEGIVEN, std::vector<std::string>());
     EXPECT_EQ(client1->getLastMessage(), expected_reply);

@@ -98,12 +98,14 @@ TEST_F(ClientBufferTest, SendBuffer_AppendAndGet) {
 // TEST: sendBufferからのデータ削除 (部分送信のシミュレーション)
 TEST_F(ClientBufferTest, SendBuffer_RemoveSentData) {
     client->appendToSendBuffer("FULL_MESSAGE_TO_SEND");
-    ASSERT_EQ(client->getSendBuffer().length(), 20);
+    //ASSERT_EQ(client->getSendBuffer().length(), 20);
+    EXPECT_EQ(client->getSendBuffer().length(), static_cast<std::string::size_type>(20));
 
     // 最初の5バイトが送信されたと仮定
     client->removeSentData(5);
-    ASSERT_EQ(client->getSendBuffer(), "MESSAGE_TO_SEND");
-    ASSERT_EQ(client->getSendBuffer().length(), 15);
+    //ASSERT_EQ(client->getSendBuffer().c_str(), "MESSAGE_TO_SEND");
+    ASSERT_STREQ(client->getSendBuffer().c_str(), "MESSAGE_TO_SEND");
+    ASSERT_EQ(client->getSendBuffer().length(), static_cast<std::string::size_type>(15));
 
     // 残り全てが送信されたと仮定
     client->removeSentData(15);

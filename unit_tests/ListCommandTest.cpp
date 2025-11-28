@@ -31,7 +31,7 @@ TEST_F(ListCommandTest, List_WithChannels) {
     args.clear();
     listCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 4);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
 
     // 1. RPL_LISTSTART (321)
     EXPECT_NE(client1->receivedMessages[0].find("321"), std::string::npos);
@@ -57,7 +57,7 @@ TEST_F(ListCommandTest, List_NoChannels) {
     args.clear();
     listCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
     EXPECT_NE(client1->receivedMessages[0].find("321"), std::string::npos); // RPL_LISTSTART
     EXPECT_NE(client1->receivedMessages[1].find("323"), std::string::npos); // RPL_LISTEND
 }
@@ -73,7 +73,7 @@ TEST_F(ListCommandTest, List_SpecificChannel) {
     args.push_back("#chan1");
     listCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 3);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(3));
     EXPECT_NE(client1->receivedMessages[0].find("321"), std::string::npos);
     
     std::string list_reply = client1->receivedMessages[1];
@@ -95,7 +95,7 @@ TEST_F(ListCommandTest, List_MultipleSpecificChannels) {
     args.push_back("#chan1,#chan3");
     listCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 4);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
     EXPECT_NE(client1->receivedMessages[0].find("321"), std::string::npos);
     
     std::string combined_replies = client1->receivedMessages[1] + client1->receivedMessages[2];
@@ -112,7 +112,7 @@ TEST_F(ListCommandTest, List_NonExistentChannel) {
 
     // RFC specifies that LIST for a non-existent channel should just not return a RPL_LIST for it.
     // So it should be the same as an empty list.
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
     EXPECT_NE(client1->receivedMessages[0].find("321"), std::string::npos);
     EXPECT_NE(client1->receivedMessages[1].find("323"), std::string::npos);
 }

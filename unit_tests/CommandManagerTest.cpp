@@ -95,7 +95,7 @@ TEST_F(CommandManagerTest, RemoveClientCleansUpChannels) {
 
     ASSERT_TRUE(channel->isMember(client1));
     ASSERT_TRUE(channel->isMember(client2));
-    ASSERT_EQ(channel->getMembers().size(), 2);
+    ASSERT_EQ(channel->getMembers().size(), static_cast<std::string::size_type>(2));
 
     // 2. client1 をサーバーから削除
     server->removeClient(client1->getFd());
@@ -103,5 +103,5 @@ TEST_F(CommandManagerTest, RemoveClientCleansUpChannels) {
     // 3. client1 がチャンネルから削除され、client2 は残っていることを確認
     EXPECT_FALSE(channel->isMember(client1));
     EXPECT_TRUE(channel->isMember(client2));
-    EXPECT_EQ(channel->getMembers().size(), 1);
+    EXPECT_EQ(channel->getMembers().size(), static_cast<std::string::size_type>(1));
 }

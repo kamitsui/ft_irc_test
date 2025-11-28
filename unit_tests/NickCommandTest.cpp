@@ -18,7 +18,7 @@ TEST_F(CommandTest, Nick_Success_CompletesRegistration) {
     ASSERT_EQ(client1->getNickname(), "NewNick");
     ASSERT_TRUE(client1->isRegistered());
 
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
 
     // 001 RPL_WELCOME
     std::vector<std::string> welcome_args;

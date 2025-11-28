@@ -20,7 +20,8 @@ TEST_F(ChannelCommandsTest, Join_NewChannel) {
     ASSERT_TRUE(ch->isMember(client1));
 
     // 1. JOIN通知, 2. RPL_NOTOPIC, 3. RPL_NAMREPLY, 4. RPL_ENDOFNAMES の4つが届く
-    ASSERT_EQ(client1->receivedMessages.size(), 4);
+
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
 
     // 1. JOIN通知
     std::string expected_join_msg = client1->getPrefix() + " JOIN " + "#new" + "\r\n";
@@ -186,7 +187,7 @@ TEST_F(ChannelCommandsTest, Join_MultipleChannels) {
     ASSERT_TRUE(ch2 != NULL);
     EXPECT_TRUE(ch1->isMember(client1));
     EXPECT_TRUE(ch2->isMember(client1));
-    EXPECT_EQ(client1->getChannels().size(), 2);
+    EXPECT_EQ(client1->getChannels().size(), static_cast<std::string::size_type>(2));
 }
 
 TEST_F(ChannelCommandsTest, Part_MultipleChannels) {

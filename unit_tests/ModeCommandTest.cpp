@@ -223,7 +223,7 @@ TEST_F(ModeCommandTest, Mode_SetLimit) {
     modeCmd->execute(client1, args);
 
     EXPECT_TRUE(channel->hasMode('l'));
-    EXPECT_EQ(channel->getLimit(), 10);
+    EXPECT_EQ(channel->getLimit(), static_cast<std::string::size_type>(10));
     std::string expected_msg = std::string(":UserA!user@client1.host MODE #test +l 10") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }
@@ -238,7 +238,7 @@ TEST_F(ModeCommandTest, Mode_UnsetLimit) {
     modeCmd->execute(client1, args);
 
     EXPECT_FALSE(channel->hasMode('l'));
-    EXPECT_EQ(channel->getLimit(), 0);
+    EXPECT_EQ(channel->getLimit(), static_cast<std::string::size_type>(0));
     std::string expected_msg = std::string(":UserA!user@client1.host MODE #test -l") + "\r\n";
     EXPECT_EQ(client1->getLastMessage(), expected_msg);
 }

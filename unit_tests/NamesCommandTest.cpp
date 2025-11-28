@@ -21,7 +21,7 @@ TEST_F(NamesCommandTest, NamesCommandReturnsCorrectListForOneChannel) {
     args.push_back("#test");
     namesCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 2);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(2));
 
     // Check RPL_NAMREPLY (353)
     std::string namesReply = client1->receivedMessages[0];
@@ -59,7 +59,7 @@ TEST_F(NamesCommandTest, NamesCommandReturnsCorrectListForMultipleChannels) {
     args.push_back("#chan1,#chan2");
     namesCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 4);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
 
     // Collect replies for each channel
     std::string chan1_namereply, chan1_endofnames;
@@ -99,7 +99,7 @@ TEST_F(NamesCommandTest, NamesCommandForNonExistentChannel) {
     args.push_back("#nonexistent");
     namesCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 1);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(1));
 
     std::string endNamesReply = client1->receivedMessages[0];
     EXPECT_NE(endNamesReply.find("366"), std::string::npos);
@@ -129,7 +129,7 @@ TEST_F(NamesCommandTest, NamesCommandWithoutParametersListsAllChannels) {
     args.clear();
     namesCmd->execute(client1, args);
 
-    ASSERT_EQ(client1->receivedMessages.size(), 4);
+    ASSERT_EQ(client1->receivedMessages.size(), static_cast<std::string::size_type>(4));
 
     // Collect replies for each channel
     std::string chan1_namereply, chan1_endofnames;
