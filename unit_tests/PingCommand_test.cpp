@@ -10,7 +10,7 @@ TEST_F(CommandTest, PingCommandRespondsWithPong) {
 
     pingCmd.execute(client1, args);
 
-    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com" + "\r\n";
+    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com";
     EXPECT_EQ(client1->getLastMessage(), expected_pong);
 }
 
@@ -23,7 +23,7 @@ TEST_F(CommandTest, PingCommandWithMultipleParametersRespondsWithFirstParameter)
 
     pingCmd.execute(client1, args);
 
-    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com" + "\r\n";
+    std::string expected_pong = "PONG " + server->getServerName() + " :irc.example.com";
     EXPECT_EQ(client1->getLastMessage(), expected_pong);
 }
 
@@ -34,7 +34,7 @@ TEST_F(CommandTest, PingCommandWithoutParametersReturnsError) {
 
     pingCmd.execute(client1, args);
 
-    std::string expected_error = ":" + server->getServerName() + " 409 " +
-                                 client1->getNickname() + " :No origin specified\r\n";
+    std::string expected_error =
+        ":" + server->getServerName() + " 409 " + client1->getNickname() + " :No origin specified";
     EXPECT_EQ(client1->getLastMessage(), expected_error);
 }
