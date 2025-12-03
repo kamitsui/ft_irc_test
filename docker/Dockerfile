@@ -71,10 +71,15 @@ RUN DEBIAN_PRIORITY=critical apt-get update && apt-get install -y \
 	graphviz \
 	inotify-tools \
 	python3.10-venv \
+	irssi netcat \
 	&& apt-get clean
 
 # Git LFS を初期化（ユーザーごとに実施）：git pull, checkout, restore 操作を実行した際に、Git LFSが正しく動作します。
 RUN git lfs install
+
+#######################
+### Gemini CLI 関係 ###
+#######################
 
 # 基本ツール
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -99,12 +104,17 @@ RUN node -v && npm -v
 RUN npm install -g @google/gemini-cli \
  && echo "GEMINI_API_KEYを設定して下さい。"
 
+#######################
 
 # Create working directory inside the container
 WORKDIR /app
 
 # Expose the live-server port
 EXPOSE 8080
+
+# ローカルの設定ファイル (.tmux.conf) をコンテナ内の /root/ ディレクトリにコピー
+# ホストの Dockerfile と同じディレクトリにある .tmux.conf を想定
+COPY .tmux.conf /root/.tmux.conf
 
 # Set entry point to bash
 CMD ["bash"]
