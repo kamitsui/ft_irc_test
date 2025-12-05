@@ -39,7 +39,7 @@ ft_irc_test/
 ## 使い方
 
 * `ft_irc` のMakefileにテストを呼び出す設置をします。（以下は例）
-```
+```Makefile
 # REPOSITORY for Test
 TEST_DIR = test
 URL_TEST_REPO = "https://github.com/kamitsui/ft_irc_test.git"
@@ -116,5 +116,5 @@ fclean: clean
 
 ## その他
 
-* 詳しい情報については、[こちら(未完)]()のページを参照ください。
+* 詳しい情報については、ft_irc Documentationの[テスト方法](https://kamitsui.github.io/ft_irc/testing.html)のページを参照ください。
 * まだまだ未完成な点がありますので、問題点・改善点などありましたら Issues またはプルリクエストのご協力いただけますと幸いです。
